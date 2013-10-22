@@ -4,7 +4,6 @@ import collections
 class DataLoader:
 	def __init__(self, testfile):
 		self.raw_test_data = self.loadTrainData(testfile)
-
 	def loadTrainData(self, filename):
 		raw_data = []
 		with open(filename, 'rb') as csvfile:
@@ -35,7 +34,7 @@ class DataLoader:
 	def getConfidenceVector(self, exampledict, prefix ):
 		confidencevector = []
 		for key in exampledict:
-			if key[0] == prefix and len(key) < 5: #differentiate key "state" and "s1"
+			if key[0] == prefix and len(key) < 5: #HACK differentiate key "state" and "s1"
 				confidencevector.append(float(exampledict[key]))
 		return confidencevector
 
@@ -47,7 +46,8 @@ class DataLoader:
 			else:
 				bitvector.append(0)
 		return bitvector
-		
+		#extracts a dictionary containing bit vectors for each label for each training
+		#instance - 1 if greater than threshold and 0 otherwise
 	def extractLabelBitVectors(self, threshold):
 		confidences = self.extractLabelConfidences()
 		bitvectors = {'sentiment':[], 'event':[], 'time':[]}
