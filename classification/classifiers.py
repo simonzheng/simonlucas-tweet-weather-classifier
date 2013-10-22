@@ -28,17 +28,18 @@ class MultiClassClassifier(object):
         return max(self.classify(x), key=lambda x: x[1])[0]
         # END_YOUR_CODE
 
-class OneVsAllClassifier(MultiClassClassifier):
-    def __init__(self, labels, classifiers):
+class OneVsAllClassifier():
+    def __init__(self, classifiers):
         """
         @param list string: List of labels
         @param list (string, Classifier): tuple of (label, classifier); the classifier is the one-vs-all classifier
         """
-        super(OneVsAllClassifier, self).__init__(labels, classifiers)
+        self.classifiers = classifiers
+
 
     def classify(self, x):
         """
-        @param string x: the text message
+        @param string x: the feature vector
         @return list (string, double): list of labels with scores 
         """
         # BEGIN_YOUR_CODE (around 4 lines of code expected)
@@ -48,15 +49,24 @@ class OneVsAllClassifier(MultiClassClassifier):
         return output
         # END_YOUR_CODE
 
-class Stupid_Classifier(Classifier):
+class Stupid_Classifier():
 	def __init__(self, goodwords):
 		self.goodwords = goodwords
 	#Classify looks at a word counter and goodwords
 	def classify(self, frequencies):
 		for w1 in frequencies:
 			for w2 in self.goodwords:
-				if w1 == w2: 
+				if w2 in w1: 
 					return 1
 		return 0
+#Stupid factory returns a onevall classifier for a set of goodwords 
+class StupidFactory():
+    def getClassifier(wordlist):
+        stupidclassifiers = []
+        for wordlist in self.wordlists:
+            stupidclassifier = Stupid_Classifier(wordlist)
+            stupidclassifiers.append(stupidclassifier)
+        onevall = OneVsAllClassifier(stupidclassifiers)
+        return onevall
 
 

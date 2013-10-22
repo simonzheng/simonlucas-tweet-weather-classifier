@@ -33,7 +33,7 @@ class DataLoader:
 	def getConfidenceVector(self, exampledict, prefix ):
 		confidencevector = []
 		for key in exampledict:
-			if key[0] == prefix and len(key) < 5: #differentiate key "state" and "s1"
+			if key[0] == prefix and len(key) < 5: #HACK differentiate key "state" and "s1"
 				confidencevector.append(float(exampledict[key]))
 		return confidencevector
 	def getBitVector(self, examplevector, threshold):
@@ -44,6 +44,8 @@ class DataLoader:
 			else:
 				bitvector.append(0)
 		return bitvector
+		#extracts a dictionary containing bit vectors for each label for each training
+		#instance - 1 if greater than threshold and 0 otherwise
 	def extractLabelBitVectors(self, threshold):
 		confidences = self.extractLabelConfidences()
 		bitvectors = {'sentiment':[], 'event':[], 'time':[]}
