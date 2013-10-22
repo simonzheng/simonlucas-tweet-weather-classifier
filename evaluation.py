@@ -42,7 +42,6 @@ def rmse(predictions_list, gold_list):
 	if numPredictions != len(gold_list):
 		print "predictions_list and gold_list do not match"
 
-
 	numLabels = len(predictions_list[0])
 	if numLabels <= 0:
 		print "prediction numLabels <= 0"
@@ -70,6 +69,7 @@ print "rmse is %f" %(rmse(predictions_list, gold_list))
 
 
 # Note: can copy or use scikit's: http://scikit-learn.org/stable/modules/cross_validation.html
-def k_folds_validation(dataList):
-	numDataPoints = len(dataList)
-	numDataPointsPerFold = numDataPoints / 5 # Note: we can lose up to 4 total data numDataPoints
+
+# def k_folds_validation(dataList):
+# 	numDataPoints = len(dataList)
+# 	numDataPointsPerFold = numDataPoints / 5 # Note: we can lose up to 4 total data numDataPoints
