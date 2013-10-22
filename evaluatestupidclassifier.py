@@ -11,7 +11,7 @@ goodwords = {'sentiment':[[], ['bad', 'sucks', 'awful', 'negative'], [], ['good'
 loader = dataloader.DataLoader('data/train.csv')
 testfeaturevectors = loader.extractFeatureVectors()
 testlabelvectors = loader.extractLabelBitVectors(.5)
-
+evaluator = evaluation.Evaluator()
 factory = classifiers.StupidFactory()
 for labeltype in goodwords:
 	onevallstupid = factory.getClassifier(goodwords[labeltype])
@@ -25,7 +25,7 @@ for labeltype in goodwords:
 	#print 'numrows' ,len(expectedvectors)
 	#print 'predicted numcols', len(predictedvectors[0]),predictedvectors[0]
 	#print 'expected numcols', len(expectedvectors[0]), expectedvectors[0]
-	rmse = evaluation.rmse(predictedvectors, expectedvectors)
+	rmse = evaluator.rmse(predictedvectors, expectedvectors)
 	print labeltype, ' : ', rmse
 
 		

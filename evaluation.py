@@ -31,10 +31,6 @@ import math, random
 # 	return mean_squared_error
 
 class Evaluator:
-	def __init__(self, data):
-		self.data = data
-
-
 	def single_data_point_se(self, predicted_confidence_vector, gold_confidence_vector):
 		numLabels = len(predicted_confidence_vector)
 		squared_error = 0.0
@@ -110,16 +106,3 @@ def kfold_crossvalidate(dataList, k=5):
 		# print "training is ", training
 		# print "test is ", test
 
-# evaluator = Evaluator()
-# print "rmse is %f" %(evaluator.rmse(predictions_list, gold_list))
-
-numpy.random.seed(0)
-numbers = ['a', 'b', 'c', 'd', 'e', 'f']
-kfold_crossvalidate(numbers)
-
-
-
-
-
-
->>>>>>> 5edc4af813a68cd5a9bb0beceb4d8fe2a0fc67db
