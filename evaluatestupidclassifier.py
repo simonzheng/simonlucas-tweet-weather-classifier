@@ -16,6 +16,3 @@ for labeltype in goodwords:
 	Get_Error(onevallstupid,testfeaturevectors, testlabelvectors)
 
 def Get_Error(classifier, testfeaturevectors, expected):
-	
-
-
