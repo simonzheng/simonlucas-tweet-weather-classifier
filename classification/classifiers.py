@@ -61,9 +61,9 @@ class Stupid_Classifier():
 		return 0
 #Stupid factory returns a onevall classifier for a set of goodwords 
 class StupidFactory():
-    def getClassifier(wordlist):
+    def getClassifier(self,wordlists):
         stupidclassifiers = []
-        for wordlist in self.wordlists:
+        for wordlist in wordlists:
             stupidclassifier = Stupid_Classifier(wordlist)
             stupidclassifiers.append(stupidclassifier)
         onevall = OneVsAllClassifier(stupidclassifiers)

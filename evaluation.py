@@ -1,22 +1,22 @@
 import math, random
 
 # SAmple confidence vectors 
-predicted_confidence_vector_a = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
-predicted_confidence_vector_b = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
-predictions_list = [predicted_confidence_vector_a, predicted_confidence_vector_b]
-gold_confidence_vector_a =	 		[0,	0,	0.5,	0,	0, .5,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
-gold_confidence_vector_b =	 		[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
-gold_list = [gold_confidence_vector_a, gold_confidence_vector_b]
+# predicted_confidence_vector_a = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
+# predicted_confidence_vector_b = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
+# predictions_list = [predicted_confidence_vector_a, predicted_confidence_vector_b]
+# gold_confidence_vector_a =	 		[0,	0,	0.5,	0,	0, .5,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
+# gold_confidence_vector_b =	 		[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
+# gold_list = [gold_confidence_vector_a, gold_confidence_vector_b]
 # Note: These only differ in confidence of s2 and s5 in vector a
 # These differences make the squared error 0.1^2 + 0.1^2 = 0.02
 # We expect root mean squared error to be math.sqrt(0.02 / 2 * 24) = 0.020412414523193152
 
-print "predicted_confidence_vector is "
-for prediction in predictions_list:
-	print prediction
-print "gold_confidence_vector is "
-for gold in gold_list:
-	print gold
+# print "predicted_confidence_vector is "
+# for prediction in predictions_list:
+# 	print prediction
+# print "gold_confidence_vector is "
+# for gold in gold_list:
+# 	print gold
 
 # def single_data_point_mse(predicted_confidence_vector, gold_confidence_vector):
 # 	numLabels = len(predicted_confidence_vector)
@@ -65,7 +65,7 @@ def rmse(predictions_list, gold_list):
 	root_mean_squared_error = math.sqrt(total_mean_squared_error)
 	return root_mean_squared_error
 
-print "rmse is %f" %(rmse(predictions_list, gold_list))
+#print "rmse is %f" %(rmse(predictions_list, gold_list))
 
 
 # Note: can copy or use scikit's: http://scikit-learn.org/stable/modules/cross_validation.html

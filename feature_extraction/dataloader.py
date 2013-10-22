@@ -57,8 +57,8 @@ class DataLoader:
 			eventbitvector = self.getBitVector(confidences['event'][i], threshold)
 			timebitvector = self.getBitVector(confidences['time'][i], threshold)
 			bitvectors['sentiment'].append(sentimentbitvector)
-			bitvectors['event'].append(sentimentbitvector) 
- 			bitvectors['time'].append(sentimentbitvector) 
+			bitvectors['event'].append(eventbitvector) 
+ 			bitvectors['time'].append(timebitvector) 
 		return bitvectors
 
 
