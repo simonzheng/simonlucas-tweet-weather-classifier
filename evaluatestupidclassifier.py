@@ -1,5 +1,6 @@
 from classification import classifiers
 from feature_extraction import dataloader
+import evaluation
 #import evaluation
 import collections
 goodwords = {'sentiment':[[], ['bad', 'sucks', 'awful', 'negative'], [], ['good', 'great', 'like', 'love', 'awesome'], []], 
@@ -9,10 +10,28 @@ goodwords = {'sentiment':[[], ['bad', 'sucks', 'awful', 'negative'], [], ['good'
 
 loader = dataloader.DataLoader('data/train.csv')
 testfeaturevectors = loader.extractFeatureVectors()
+testlabelvectors = loader.extractLabelBitVectors(.5)
+evaluator = evaluation.Evaluator()
 testlabelvectors = loader.extractLabelBitVectors()
 factory = classifiers.StupidFactory()
 for labeltype in goodwords:
+	onevallstupid = factory.getClassifier(goodwords[labeltype])
+	expectedvectors = testlabelvectors[labeltype]
+	predictedvectors = []
+	for example in testfeaturevectors:
+		predicted = onevallstupid.classify(example)
+		predictedvectors.append(predicted)
+	#print labeltype
+	#print 'numrows' ,len(predictedvectors)
+	#print 'numrows' ,len(expectedvectors)
+	#print 'predicted numcols', len(predictedvectors[0]),predictedvectors[0]
+	#print 'expected numcols', len(expectedvectors[0]), expectedvectors[0]
+	rmse = evaluator.rmse(predictedvectors, expectedvectors)
+	print labeltype, ' : ', rmse
 	onevallstupid = Stupid_Factory(goodwords[labeltype])
 	Get_Error(onevallstupid,testfeaturevectors, testlabelvectors)
+
+		
+
 
 def Get_Error(classifier, testfeaturevectors, expected):

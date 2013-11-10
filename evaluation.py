@@ -5,22 +5,22 @@ import numpy
 import math, random
 
 # SAmple confidence vectors 
-predicted_confidence_vector_a = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
-predicted_confidence_vector_b = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
-predictions_list = [predicted_confidence_vector_a, predicted_confidence_vector_b]
-gold_confidence_vector_a =	 		[0,	0,	0.5,	0,	0, .5,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
-gold_confidence_vector_b =	 		[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
-gold_list = [gold_confidence_vector_a, gold_confidence_vector_b]
+# predicted_confidence_vector_a = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
+# predicted_confidence_vector_b = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
+# predictions_list = [predicted_confidence_vector_a, predicted_confidence_vector_b]
+# gold_confidence_vector_a =	 		[0,	0,	0.5,	0,	0, .5,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
+# gold_confidence_vector_b =	 		[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
+# gold_list = [gold_confidence_vector_a, gold_confidence_vector_b]
 # Note: These only differ in confidence of s2 and s5 in vector a
 # These differences make the squared error 0.1^2 + 0.1^2 = 0.02
 # We expect root mean squared error to be math.sqrt(0.02 / 2 * 24) = 0.020412414523193152
 
-print "predicted_confidence_vector is "
-for prediction in predictions_list:
-	print prediction
-print "gold_confidence_vector is "
-for gold in gold_list:
-	print gold
+# print "predicted_confidence_vector is "
+# for prediction in predictions_list:
+# 	print prediction
+# print "gold_confidence_vector is "
+# for gold in gold_list:
+# 	print gold
 
 # def single_data_point_mse(predicted_confidence_vector, gold_confidence_vector):
 # 	numLabels = len(predicted_confidence_vector)
@@ -31,10 +31,6 @@ for gold in gold_list:
 # 	return mean_squared_error
 
 class Evaluator:
-	def __init__(self, data):
-		self.data = data
-
-
 	def single_data_point_se(self, predicted_confidence_vector, gold_confidence_vector):
 		numLabels = len(predicted_confidence_vector)
 		squared_error = 0.0
@@ -109,16 +105,4 @@ def kfold_crossvalidate(dataList, k=5):
 		training, test = [dataList[index] for index in training_idx], [dataList[index] for index in test_idx]
 		# print "training is ", training
 		# print "test is ", test
-
-# evaluator = Evaluator()
-# print "rmse is %f" %(evaluator.rmse(predictions_list, gold_list))
-
-numpy.random.seed(0)
-numbers = ['a', 'b', 'c', 'd', 'e', 'f']
-kfold_crossvalidate(numbers)
-
-
-
-
-
 
