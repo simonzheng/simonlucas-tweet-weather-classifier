@@ -110,11 +110,10 @@ class DataLoader:
 
 # hacky solution to get the number of labels in each category
 	def getNumLabels(self):
-		first_example = self.raw_test_data[0]
-		numlabels = {'sentiment'}
-		sentimentbitvector = self.getBitVector(confidences['sentiment'][i], 0)
-		eventbitvector = self.getBitVector(confidences['event'][i], 0)
-		timebitvector = self.getBitVector(confidences['time'][i], 0)
+		confidences = self.extractLabelConfidences()
+		sentimentbitvector = self.getBitVector(confidences['sentiment'][0], 0)
+		eventbitvector = self.getBitVector(confidences['event'][0], 0)
+		timebitvector = self.getBitVector(confidences['time'][0], 0)
 		return {'sentiment':len(sentimentbitvector), 'event':len(eventbitvector), 'time':len(timebitvector)}
 
 

@@ -24,7 +24,10 @@ for labeltype in ['sentiment', 'event', 'time']:
 testCSP = CSP()
 
 # add a variable and unary potential for each label 
-# for labeltype in ['sentiment', 'event', 'time']:
+numlabelsdict = loader.getNumLabels()
+print numlabelsdict
+#for labeltype in ['sentiment', 'event', 'time']:
+	#numlabels = 
 # 	labelunaries = classifier[labeltype].predict_proba(testx)
 # 	for index in trainlabelindices[labeltype]:
 # 		testcsp.add_variable(labeltype + str(index))
