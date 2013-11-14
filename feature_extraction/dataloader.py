@@ -94,7 +94,7 @@ class DataLoader:
 			bitvectors['event'].append(eventbitvector) 
  			bitvectors['time'].append(timebitvector) 
 		return bitvectors
-	#outputs a set of indices for each label class representing the index of the most likely
+	#outputs a set of one index for each label class representing most likely
 	#label 
 	def extractLabelIndices(self):
 		confidences = self.extractLabelConfidences()
@@ -107,5 +107,15 @@ class DataLoader:
 			labeldicts['event'].append(eventlabel)
 			labeldicts['time'].append(timelabel)
 		return labeldicts
+
+# hacky solution to get the number of labels in each category
+	def getNumLabels(self):
+		first_example = self.raw_test_data[0]
+		numlabels = {'sentiment'}
+		sentimentbitvector = self.getBitVector(confidences['sentiment'][i], 0)
+		eventbitvector = self.getBitVector(confidences['event'][i], 0)
+		timebitvector = self.getBitVector(confidences['time'][i], 0)
+		return {'sentiment':len(sentimentbitvector), 'event':len(eventbitvector), 'time':len(timebitvector)}
+
 
 
