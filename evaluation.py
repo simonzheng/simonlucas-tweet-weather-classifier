@@ -1,7 +1,4 @@
 import numpy
-# from sklearn import cross_validation
-# from sklearn import datasets
-# from sklearn import svm
 import math, random
 
 # SAmple confidence vectors 
@@ -95,6 +92,16 @@ def kfold_crossvalidate(dataList, k=5):
 	numDataPointsPerFold = len(dataList) / k
 	print "numDataPointsPerFold is ", numDataPointsPerFold
 
+	# # we set aside 1/k of the data points for fold validation. 
+	# for foldIndex in range(k):
+	# 	training_idx = indices[foldIndex * numDataPointsPerFold : (foldIndex + 1) * numDataPointsPerFold]
+	# 	test_idx = list(indices[:foldIndex * numDataPointsPerFold]) + list(indices[(foldIndex + 1) * numDataPointsPerFold:])
+	# 	# print "training_idx is ", training_idx
+	# 	# print "test_idx is ", test_idx
+
+	# 	training, test = [dataList[index] for index in training_idx], [dataList[index] for index in test_idx]
+	# 	# print "training is ", training
+	# 	# print "test is ", test
 	# we set aside 1/k of the data points for fold validation. 
 	for foldIndex in range(k):
 		training_idx = indices[foldIndex * numDataPointsPerFold : (foldIndex + 1) * numDataPointsPerFold]
@@ -105,4 +112,50 @@ def kfold_crossvalidate(dataList, k=5):
 		training, test = [dataList[index] for index in training_idx], [dataList[index] for index in test_idx]
 		# print "training is ", training
 		# print "test is ", test
+
+
+
+########## Start of using scikit ##############
+
+
+
+
+
+
+
+
+
+import numpy as np
+from sklearn import cross_validation
+from sklearn import datasets
+from sklearn import svm
+
+# X_train, X_test, y_train, y_test = cross_validation.train_test_split(
+# 	iris.data, iris.target, test_size=0.4, random_state=0)
+
+# X_train.shape, y_train.shape
+
+iris = datasets.load_iris()
+print 'iris.data', iris.data
+print 'iris.data.shape', iris.data.shape
+print 'iris.target', iris.target
+print 'iris.target.shape', iris.target.shape
+
+X_train, X_test, y_train, y_test = cross_validation.train_test_split(iris.data, iris.target, test_size=0.4, random_state=0)
+
+# print 'X_train, X_test, y_train, y_test', X_train, X_test, y_train, y_test
+
+print 'X_train.shape, y_train.shape', X_train.shape, y_train.shape
+print 'X_test.shape, y_test.shape', X_test.shape, y_test.shape
+
+
+clf = svm.SVC(kernel='linear', C=1).fit(X_train, y_train)
+print clf.score(X_test, y_test)
+
+
+
+
+
+
+
 

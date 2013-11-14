@@ -1,6 +1,3 @@
-#Stupid_Classifier is a bianry classifier initialized with a list of words that are 
-#relevant to the positive label. If there are any matches with the good words in the 
-#test set then the classifier will return 1. Else it will return 0. 
 class MultiClassClassifier(object):
     def __init__(self, labels, classifiers):
         """
@@ -49,6 +46,9 @@ class OneVsAllClassifier():
         return output
         # END_YOUR_CODE
 
+#Stupid_Classifier is a binary classifier initialized with a list of words that are 
+#relevant to the positive label. If there are any matches with the good words in the 
+#test set then the classifier will return 1. Else it will return 0. 
 class Stupid_Classifier():
 	def __init__(self, goodwords):
 		self.goodwords = goodwords
@@ -59,6 +59,7 @@ class Stupid_Classifier():
 				if w2 in w1: 
 					return 1
 		return 0
+        
 #Stupid factory returns a onevall classifier for a set of goodwords 
 class StupidFactory():
     def getClassifier(self,wordlists):
