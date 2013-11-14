@@ -1,7 +1,7 @@
 import numpy
 import math, random
 
-# SAmple confidence vectors 
+# Sample confidence vectors 
 # predicted_confidence_vector_a = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
 # predicted_confidence_vector_b = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
 # predictions_list = [predicted_confidence_vector_a, predicted_confidence_vector_b]
@@ -18,14 +18,6 @@ import math, random
 # print "gold_confidence_vector is "
 # for gold in gold_list:
 # 	print gold
-
-# def single_data_point_mse(predicted_confidence_vector, gold_confidence_vector):
-# 	numLabels = len(predicted_confidence_vector)
-# 	squared_error = 0.0
-# 	for label_index in range(numLabels):
-# 		squared_error += math.pow((predicted_confidence_vector[label_index] - gold_confidence_vector[label_index]), 2)
-# 	mean_squared_error = squared_error / numLabels
-# 	return mean_squared_error
 
 class Evaluator:
 	def single_data_point_se(self, predicted_confidence_vector, gold_confidence_vector):
@@ -106,12 +98,12 @@ def kfold_crossvalidate(dataList, k=5):
 	for foldIndex in range(k):
 		training_idx = indices[foldIndex * numDataPointsPerFold : (foldIndex + 1) * numDataPointsPerFold]
 		test_idx = list(indices[:foldIndex * numDataPointsPerFold]) + list(indices[(foldIndex + 1) * numDataPointsPerFold:])
-		# print "training_idx is ", training_idx
-		# print "test_idx is ", test_idx
+		print "training_idx is ", training_idx
+		print "test_idx is ", test_idx
 
 		training, test = [dataList[index] for index in training_idx], [dataList[index] for index in test_idx]
-		# print "training is ", training
-		# print "test is ", test
+		print "training is ", training
+		print "test is ", test
 
 
 
@@ -125,32 +117,32 @@ def kfold_crossvalidate(dataList, k=5):
 
 
 
-import numpy as np
-from sklearn import cross_validation
-from sklearn import datasets
-from sklearn import svm
+# import numpy as np
+# from sklearn import cross_validation
+# from sklearn import datasets
+# from sklearn import svm
 
-# X_train, X_test, y_train, y_test = cross_validation.train_test_split(
-# 	iris.data, iris.target, test_size=0.4, random_state=0)
+# # X_train, X_test, y_train, y_test = cross_validation.train_test_split(
+# # 	iris.data, iris.target, test_size=0.4, random_state=0)
 
-# X_train.shape, y_train.shape
+# # X_train.shape, y_train.shape
 
-iris = datasets.load_iris()
-print 'iris.data', iris.data
-print 'iris.data.shape', iris.data.shape
-print 'iris.target', iris.target
-print 'iris.target.shape', iris.target.shape
+# iris = datasets.load_iris()
+# print 'iris.data', iris.data
+# print 'iris.data.shape', iris.data.shape
+# # print 'iris.target', iris.target
+# print 'iris.target.shape', iris.target.shape
 
-X_train, X_test, y_train, y_test = cross_validation.train_test_split(iris.data, iris.target, test_size=0.4, random_state=0)
+# X_train, X_test, y_train, y_test = cross_validation.train_test_split(iris.data, iris.target, test_size=0.4, random_state=0)
 
-# print 'X_train, X_test, y_train, y_test', X_train, X_test, y_train, y_test
+# # print 'X_train, X_test, y_train, y_test', X_train, X_test, y_train, y_test
 
-print 'X_train.shape, y_train.shape', X_train.shape, y_train.shape
-print 'X_test.shape, y_test.shape', X_test.shape, y_test.shape
+# print 'X_train.shape, y_train.shape', X_train.shape, y_train.shape
+# print 'X_test.shape, y_test.shape', X_test.shape, y_test.shape
 
 
-clf = svm.SVC(kernel='linear', C=1).fit(X_train, y_train)
-print clf.score(X_test, y_test)
+# clf = svm.SVC(kernel='linear', C=1).fit(X_train, y_train)
+# print clf.score(X_test, y_test)
 
 
 
