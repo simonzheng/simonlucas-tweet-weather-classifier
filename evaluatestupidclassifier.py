@@ -26,8 +26,9 @@ for labeltype in goodwords:
 	#print 'predicted numcols', len(predictedvectors[0]),predictedvectors[0]
 	#print 'expected numcols', len(expectedvectors[0]), expectedvectors[0]
 	rmse = evaluator.rmse(predictedvectors, expectedvectors)
-	print labeltype, ' : ', rmse
-
+	error_rate = evaluator.error_rate(predictedvectors, expectedvectors)
+	print 'rmse', labeltype, ' : ', rmse
+	print 'error_rate', labeltype, ' : ', error_rate
 		
 
 

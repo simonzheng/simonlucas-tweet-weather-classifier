@@ -1,6 +1,14 @@
-#Stupid_Classifier is a bianry classifier initialized with a list of words that are 
-#relevant to the positive label. If there are any matches with the good words in the 
-#test set then the classifier will return 1. Else it will return 0. 
+from util import CSP
+# Classifies a single tweet in multiple categories according to unary 
+# potentials of each categories and binary potentials between categories. 
+# It is assumed that each variable has the same domain
+# Unarypotentials and binarypotentials are lists of
+class StructuredPredictionClassifier():
+    def __init__(self, vars, domain, unarypotentials, binarypotentials):
+        self.csp = CSP()
+        for var in vars:
+            csp.add_variable(var, domain)
+
 class MultiClassClassifier(object):
     def __init__(self, labels, classifiers):
         """
@@ -48,7 +56,9 @@ class OneVsAllClassifier():
             output.append(c.classify(x))
         return output
         # END_YOUR_CODE
-
+#Stupid_Classifier is a binary classifier initialized with a list of words that are 
+#relevant to the positive label. If there are any matches with the good words in the 
+#test set then the classifier will return 1. Else it will return 0.
 class Stupid_Classifier():
 	def __init__(self, goodwords):
 		self.goodwords = goodwords
