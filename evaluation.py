@@ -26,7 +26,42 @@ class Evaluator:
 		for label_index in range(numLabels):
 			squared_error += math.pow((predicted_confidence_vector[label_index] - gold_confidence_vector[label_index]), 2)
 		return squared_error
+	def error_rate(self, predictions_list, gold_list):
+		numPredictions = len(predictions_list)
+		if numPredictions <= 0: 
+			print "numPredictions <= 0"
+			exit()
+		if len(gold_list) <= 0:
+			print "len(gold_list) <= 0"
+			exit()
+		if numPredictions != len(gold_list):
+			print "predictions_list and gold_list do not match in number of features"
+			exit()
 
+		numLabels = len(predictions_list[0])
+		if numLabels <= 0:
+			print "prediction numLabels <= 0"
+			exit()
+		if len(gold_list[0]) <= 0:
+			print "gold numLabels <= 0"
+			exit()
+		if numLabels != len(gold_list[0]):
+			print "length of a prediction label vector and gold label vector do not match"
+			exit()
+
+		#print "numPredictions is %d\nnumLabels is %d" %(numPredictions, numLabels)
+
+		# Note: ensure that numPredictions = len(gold_list) 
+		# Ensure that numPredictions > 0 and len(gold_list) > 0
+		# numLabels = len(gold_list[0])
+
+		num_errors = 0
+		for prediction_index in range(len(predictions_list)):
+			# total_mean_squared_error += single_data_point_mse(predictions_list[prediction_index], gold_list[prediction_index])
+			if predictions_list[prediction_index] != gold_list[prediction_index]:
+				num_errors += 1
+		error_rate = float(num_errors) / numPredictions
+		return error_rate
 	def rmse(self, predictions_list, gold_list):
 		numPredictions = len(predictions_list)
 		if numPredictions <= 0: 
@@ -50,7 +85,7 @@ class Evaluator:
 			print "length of a prediction label vector and gold label vector do not match"
 			exit()
 
-		print "numPredictions is %d\nnumLabels is %d" %(numPredictions, numLabels)
+		#print "numPredictions is %d\nnumLabels is %d" %(numPredictions, numLabels)
 
 		# Note: ensure that numPredictions = len(gold_list) 
 		# Ensure that numPredictions > 0 and len(gold_list) > 0

@@ -27,10 +27,14 @@ for labeltype in goodwords:
 	#print 'predicted numcols', len(predictedvectors[0]),predictedvectors[0]
 	#print 'expected numcols', len(expectedvectors[0]), expectedvectors[0]
 	rmse = evaluator.rmse(predictedvectors, expectedvectors)
+	error_rate = evaluator.error_rate(predictedvectors, expectedvectors)
+	print 'rmse', labeltype, ' : ', rmse
+	print 'error_rate', labeltype, ' : ', error_rate
 	print labeltype, ' : ', rmse
 	onevallstupid = Stupid_Factory(goodwords[labeltype])
 	Get_Error(onevallstupid,testfeaturevectors, testlabelvectors)
 
+>>>>>>> b3d8706ca23b6567b78e77cce94b0dcefb1f6a51
 		
 
 
