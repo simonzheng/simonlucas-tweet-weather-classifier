@@ -33,7 +33,7 @@ backsearch = BacktrackingSearch()
 
 # add a variable and unary potential for each label 
 numlabelsdict = loader.getNumLabels()
-for labeltype in ['sentiment', 'time', 'event']:
+for labeltype in ['sentiment', 'time']:
 	numlabels = numlabelsdict[labeltype] 
 	labelprobabilities= classifiers[labeltype].predict_proba(testx)# testx needs to be in the correct format
 	for index in range(numlabels):
@@ -45,4 +45,4 @@ for labeltype in ['sentiment', 'time', 'event']:
 backsearch.solve(testcsp, False, False, False)#gives memory error for full set of labels, need to switch to actual library
 print backsearch.optimalAssignment
 
-	
+
