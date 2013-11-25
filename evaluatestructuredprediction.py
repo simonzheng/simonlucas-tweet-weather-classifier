@@ -4,6 +4,7 @@ from feature_extraction import dataloader
 from sklearn.naive_bayes import MultinomialNB
 from backtrackingsearch import BacktrackingSearch
 import math
+from constraint import *
 # Train Classifiers for each label type
 
 loader = dataloader.DataLoader('data/train.csv')
@@ -32,14 +33,15 @@ backsearch = BacktrackingSearch()
 
 # add a variable and unary potential for each label 
 numlabelsdict = loader.getNumLabels()
-for labeltype in ['sentiment']:
+for labeltype in ['sentiment', 'time', 'event']:
 	numlabels = numlabelsdict[labeltype] 
 	labelprobabilities= classifiers[labeltype].predict_proba(testx)# testx needs to be in the correct format
-	#print labelprobabilities
 	for index in range(numlabels):
 		varname = labeltype + str(index)
 		testcsp.add_variable(varname, [0,1])
-		testcsp.add_unary_potential(varname, lambda x:math.exp(labelprobabilities[0][index]))
+		score = labelprobabilities[0][index]
+		print varname, score
+		testcsp.add_unary_potential(varname, lambda x: math.pow(score, x) * math.pow(1-score, 1-x))
 backsearch.solve(testcsp, False, False, False)#gives memory error for full set of labels, need to switch to actual library
 print backsearch.optimalAssignment
 
