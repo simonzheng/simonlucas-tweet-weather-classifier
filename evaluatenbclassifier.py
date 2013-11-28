@@ -1,24 +1,26 @@
 import numpy as np
 from sklearn.naive_bayes import MultinomialNB
-import evaluation
+#import evaluation
 from feature_extraction import dataloader
 import ast
 
 loader = dataloader.DataLoader('data/train.csv')
 trainX = loader.extractNBCountMatrix()
 trainlabelvectors = loader.extractLabelBitStrings(.5)
-evaluator = evaluation.Evaluator()
+#evaluator = evaluation.Evaluator()
 classifiers = {}
 for labeltype in ['sentiment', 'event', 'time']:
 	nbclassifier = MultinomialNB()
 	y = trainlabelvectors[labeltype]
 	nbclassifier.fit(trainX, y)
 	classifiers[labeltype] = nbclassifier
+	print nbclassifier.predict_proba(trainX[0])
+
 
 # Sanity check 
 #index = 9
 #testY = {'sentiment':trainlabelvectors['sentiment'][index], 'event':trainlabelvectors['event'][index], 'time':trainlabelvectors['time'][index]}
-#testX = trainX[0:100]
+testX = trainX[0:100]
 testY = trainlabelvectors
 for labeltype in ['sentiment', 'event', 'time']:
 	predictedvectors = []
