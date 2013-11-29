@@ -5,6 +5,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 class DataLoader:
 	def __init__(self, testfile):
 		self.raw_test_data = self.loadTrainData(testfile)
+		self.numDataPoints = len(self.raw_test_data)
+	# returns the raw data in dictionary form where we can access the tweet with raw_test_data[<entryindex>]['tweet]']
 	def loadTrainData(self, filename):
 		raw_data = []
 		with open(filename, 'rb') as csvfile:
@@ -12,20 +14,39 @@ class DataLoader:
 			for row in reader:
 				raw_data.append(row)
 		return raw_data
-		
-		# returns an array of counters
+
+	# returns an array of counters of words and their word counts
 	def extractFeatureVectors(self):
 		features = []
 		for entry in self.raw_test_data:
 			text = entry["tweet"]
 			features.append(collections.Counter(text.split(' ')))
 		return features
+
 	# returns a matrix representing word count that can be used to train a scikit classifier
-	def extractNBCountMatrix(self):
+	def extractNBCountMatrix(self, indices=None):
 		vectorizer = CountVectorizer(min_df=1)
-		corpus = [entry['tweet'] for entry in self.raw_test_data]
+		corpus = []
+		for i in range(len(self.raw_test_data)):
+			if (indices != None and i not in indices): continue
+			corpus.append(self.raw_test_data[i]['tweet'])
+
 		X = vectorizer.fit_transform(corpus)
 		return X
+
+	# This is used for evaluatenb classifier!
+	def extractTrainingAndTestCountMatrices(self, training_indices):
+		vectorizer = CountVectorizer(min_df=1)
+		training_corpus = []
+		testing_corpus = []
+		for i in range(len(self.raw_test_data)):
+			if (i in training_indices):
+				training_corpus.append(self.raw_test_data[i]['tweet'])
+			else:
+				testing_corpus.append(self.raw_test_data[i]['tweet'])
+		trainX = vectorizer.fit_transform(training_corpus)
+		testX = vectorizer.transform(testing_corpus)
+		return trainX, testX
 
 	def extractLabelConfidences(self):
 		confidence={'sentiment':[], 'event':[], 'time':[]}
@@ -37,6 +58,7 @@ class DataLoader:
 			confidence['event'].append(self.getConfidenceVector(example, 'k'))
 			confidence['time'].append(self.getConfidenceVector(example, 'w'))
 		return confidence
+
 	# convert the dictionary representing an example into a list of confidences for 
 	# a single label type
 	def getConfidenceVector(self, exampledict, prefix ):
@@ -56,6 +78,7 @@ class DataLoader:
 			else:
 				bitvector.append(0)
 		return bitvector
+		
 	def getBitString(self, examplevector, threshold):
 		bitvector = [] 
 		for x in examplevector:
@@ -64,6 +87,7 @@ class DataLoader:
 			else:
 				bitvector.append(0)
 		return str(bitvector)
+
 	def getMaxLabel(self, examplevector):
 		maxconfidence = max(examplevector)
 		maxlabel = examplevector.index(maxconfidence)
@@ -82,10 +106,12 @@ class DataLoader:
 			bitvectors['event'].append(eventbitvector) 
  			bitvectors['time'].append(timebitvector) 
 		return bitvectors
-	def extractLabelBitStrings(self, threshold):
+
+	def extractLabelBitStrings(self, threshold, indices=None):
 		confidences = self.extractLabelConfidences()
 		bitvectors = {'sentiment':[], 'event':[], 'time':[]}
 		for i in range(len(self.raw_test_data)):
+			if (indices != None and i not in indices): continue # skip the rest of this loop if indices are specified and we are on an index that's not in the specified indices
 			#sentimentbitvector = dict([(key,1) if confidences['sentiment'][i][key] > threshold else (key,0) for key in confidences['sentiment'][i] ])
 			sentimentbitvector = self.getBitString(confidences['sentiment'][i], threshold)
 			eventbitvector = self.getBitString(confidences['event'][i], threshold)
