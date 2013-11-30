@@ -1,24 +1,6 @@
 import numpy
 import math, random
 
-# Sample confidence vectors 
-# predicted_confidence_vector_a = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
-# predicted_confidence_vector_b = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
-# predictions_list = [predicted_confidence_vector_a, predicted_confidence_vector_b]
-# gold_confidence_vector_a =	 		[0,	0,	0.5,	0,	0, .5,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
-# gold_confidence_vector_b =	 		[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
-# gold_list = [gold_confidence_vector_a, gold_confidence_vector_b]
-# Note: These only differ in confidence of s2 and s5 in vector a
-# These differences make the squared error 0.1^2 + 0.1^2 = 0.02
-# We expect root mean squared error to be math.sqrt(0.02 / 2 * 24) = 0.020412414523193152
-
-# print "predicted_confidence_vector is "
-# for prediction in predictions_list:
-# 	print prediction
-# print "gold_confidence_vector is "
-# for gold in gold_list:
-# 	print gold
-
 class Evaluator:
 	def single_data_point_se(self, predicted_confidence_vector, gold_confidence_vector):
 		numLabels = len(predicted_confidence_vector)
@@ -62,6 +44,11 @@ class Evaluator:
 				num_errors += 1
 		error_rate = float(num_errors) / numPredictions
 		return error_rate
+
+	# Returns the Root Mean Standard Error. Example of usage is at the bottom of this file.
+	# Params: 
+	# 	predictions_list is a list of our predicted label vectors
+	# 	gold_list is a list of our actual label vector 
 	def rmse(self, predictions_list, gold_list):
 		numPredictions = len(predictions_list)
 		if numPredictions <= 0: 
@@ -106,6 +93,8 @@ class Evaluator:
 	# 	numDataPoints = len(dataList)
 	# 	numDataPointsPerFold = numDataPoints / 5 # Note: we can lose up to 4 total data numDataPoints
 
+
+# Note that this function only separates the dataList into training and test data indices but does not actually classify using any classifier
 def kfold_crossvalidate(dataList, k=5):
 	dataList = dataList[:len(dataList) - (len(dataList) % k)] # we effectively ignore the last len(dataList) % k data points
 	
@@ -129,10 +118,10 @@ def kfold_crossvalidate(dataList, k=5):
 	# 	training, test = [dataList[index] for index in training_idx], [dataList[index] for index in test_idx]
 	# 	# print "training is ", training
 	# 	# print "test is ", test
-	# we set aside 1/k of the data points for fold validation. 
+	# we set aside 1/k of the data points for testing as fold validation. 
 	for foldIndex in range(k):
-		training_idx = indices[foldIndex * numDataPointsPerFold : (foldIndex + 1) * numDataPointsPerFold]
-		test_idx = list(indices[:foldIndex * numDataPointsPerFold]) + list(indices[(foldIndex + 1) * numDataPointsPerFold:])
+		test_idx = indices[foldIndex * numDataPointsPerFold : (foldIndex + 1) * numDataPointsPerFold]
+		training_idx = list(indices[:foldIndex * numDataPointsPerFold]) + list(indices[(foldIndex + 1) * numDataPointsPerFold:])
 		print "training_idx is ", training_idx
 		print "test_idx is ", test_idx
 
@@ -140,47 +129,47 @@ def kfold_crossvalidate(dataList, k=5):
 		print "training is ", training
 		print "test is ", test
 
-
-
-########## Start of using scikit ##############
-
-
-
-
-
-
-
-
-
+####### Testing k-fold #########
 # import numpy as np
-# from sklearn import cross_validation
-# from sklearn import datasets
-# from sklearn import svm
+# from sklearn.cross_validation import KFold
+# X = np.array([[0., 0.], [1., 1.], [-1., -1.], [2., 2.], [3., 3.]])
+# Y = np.array([0,1,0,1, 1])
 
-# # X_train, X_test, y_train, y_test = cross_validation.train_test_split(
-# # 	iris.data, iris.target, test_size=0.4, random_state=0)
+# kf = KFold(len(Y), n_folds=3, indices=False)
+# print kf
 
-# # X_train.shape, y_train.shape
-
-# iris = datasets.load_iris()
-# print 'iris.data', iris.data
-# print 'iris.data.shape', iris.data.shape
-# # print 'iris.target', iris.target
-# print 'iris.target.shape', iris.target.shape
-
-# X_train, X_test, y_train, y_test = cross_validation.train_test_split(iris.data, iris.target, test_size=0.4, random_state=0)
-
-# # print 'X_train, X_test, y_train, y_test', X_train, X_test, y_train, y_test
-
-# print 'X_train.shape, y_train.shape', X_train.shape, y_train.shape
-# print 'X_test.shape, y_test.shape', X_test.shape, y_test.shape
+# for train, test in kf:
+# 	print('Train: %s; Test: %s' %(train, test))
 
 
-# clf = svm.SVC(kernel='linear', C=1).fit(X_train, y_train)
-# print clf.score(X_test, y_test)
+####### Testing k-fold crossvalidate #########
+# x = [1,2,3,4,5,6,7,8,9,10]
+# kfold_crossvalidate(x)
 
 
 
+
+########## Testing RMSE ##############
+
+# # Sample confidence vectors 
+# predicted_confidence_vector_a = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
+# predicted_confidence_vector_b = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
+# predictions_list = [predicted_confidence_vector_a, predicted_confidence_vector_b]
+# gold_confidence_vector_a =	 		[0,	0,	0.5,	0,	0, .5,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
+# gold_confidence_vector_b =	 		[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	0,	0,	0,	0]
+# gold_list = [gold_confidence_vector_a, gold_confidence_vector_b]
+# # Note: These only differ in confidence of s2 and s5 in vector a
+# # These differences make the squared error 0.1^2 + 0.1^2 = 0.02
+# # We expect root mean squared error to be math.sqrt(0.02 / 2 * 24) = 0.020412414523193152
+
+# print "predicted_confidence_vector is "
+# for prediction in predictions_list:
+# 	print prediction
+# print "gold_confidence_vector is "
+# for gold in gold_list:
+# 	print gold
+# evalu = Evaluator()
+# print evalu.rmse(predictions_list, gold_list)
 
 
 
