@@ -80,11 +80,12 @@ for train_indices, test_indices in kf:
 		predictions_list = [loader.bitstringToIntList(classifiers[labeltype].predict(test_vector)[0]) for test_vector in testX]
 		gold_list = testlabelbitvectors[labeltype]
 
-		print 'gold_list[0] = ', gold_list[0]
-		print 'first char gold_list[0][0] = ', gold_list[0][0]
+		# # Sanity check that conversion from bitstring to bitvector was successful
+		# print 'gold_list[0] = ', gold_list[0]
+		# print 'first char gold_list[0][0] = ', gold_list[0][0]
 
-		print 'predictions_list[0] = ', predictions_list[0]
-		print 'first char predictions_list[0][0] = ', predictions_list[0][0]
+		# print 'predictions_list[0] = ', predictions_list[0]
+		# print 'first char predictions_list[0][0] = ', predictions_list[0][0]
 		
 		evaluator = evaluation.Evaluator()
 		rmse = evaluator.rmse(predictions_list, gold_list)
