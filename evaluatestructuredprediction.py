@@ -1,48 +1,99 @@
 from csp import CSP
 from feature_extraction import dataloader
-#import evaluation
+import evaluation
 from sklearn.naive_bayes import MultinomialNB
 from backtrackingsearch import BacktrackingSearch
 import math
 from constraint import *
-# Train Classifiers for each label type
+from collections import Counter
 
 loader = dataloader.DataLoader('data/train.csv')
+testloader = dataloader.DataLoader('data/test_100.csv')
+#sparse matrix representing training wordcounts for MultinomialNB
 trainX = loader.extractNBCountMatrix()
+#sparse matrix representing test word counts for MultinomialNB
+testX = loader.extractNBTestCountMatrix(testloader.corpus)
+
+#NOTE: both label names and label indicies used
+# - label indices are easier to work with for MultinomialNB class 
+# because the output probabablities are order arithmetically
+# - label names are easier to use for debugging purposes
+
+#dictionary { sentiment:[] event:[] time:[] } of label names for each training example
+trainlabelnames = loader.extractLabelNames()
+#dictionary { sentiment:[] event:[] time:[] } of label indices for each training example
 trainlabelindices = loader.extractLabelIndices()
-#evaluator = evaluation.Evaluator()
+
+#training confidence vector used for debugging 
+trainconfidences = loader.extractLabelConfidences()
+
+
+#dictionary { sentiment:[] event:[] time:[] } of label names for each training example
+testlabelnames = testloader.extractLabelNames()
+
+#dictionary { sentiment:[] event:[] time:[] } of label indices for each training example
+testlabelindices = testloader.extractLabelIndices()
+
 classifiers = {}
-#testx = trainX[0]
-testx = trainX[0] 
+print "training naive bayes classifiers on test data"
+# Train a multinomial naive bayes on each label type 
 for labeltype in ['sentiment', 'event', 'time']:
 	nbclassifier = MultinomialNB()
+	# the trainY is a single index for the maximum confidence label in a label class
 	y = trainlabelindices[labeltype]
-	nbclassifier.fit(trainX, y)
+	# list of all possible labels for nbclassifier
+	indices = [ i for i in range(len(loader.labelnames[labeltype]))]
+	# partial fit works when you don't use the full training set 
+	nbclassifier.partial_fit(trainX, y, indices)
 	classifiers[labeltype] = nbclassifier
-	#print nbclassifier.predict_proba(testx)
 
-# create a CSP with a variable for each possible label in each label class with a 
-# domain of 0, 1 with a unary potential that corresponds to exp(P(y|x)) (this is the posterior 
-# where the total probability is associated with just the other labels in the class- will this cause
-# problems? Otherwise, I will have to train on the entire features set which would mean I would 
-#either have to train nb on individual labels and split up each example into multiple examples one from
-# each class or plug in the entire vector and ... 
-# 
-testcsp = CSP()
-backsearch = BacktrackingSearch()
+print 'running csp on each example'
+backsearch = BacktrackingSearch() 
+#controls the minimum probability for a label to be considered in the csp
+probabilitythreshold = .3
+# controls the minimum confidence for a label to be present in the gold bit vector
+confidencethreshold = .5
+# gold output for evaluation for each training example
+testgoldvectors = testloader.extractCompositeLabelBitVectors(confidencethreshold)
 
-# add a variable and unary potential for each label 
-numlabelsdict = loader.getNumLabels()
-for labeltype in ['sentiment', 'time']:
-	numlabels = numlabelsdict[labeltype] 
-	labelprobabilities= classifiers[labeltype].predict_proba(testx)# testx needs to be in the correct format
-	for index in range(numlabels):
-		varname = labeltype + str(index)
-		testcsp.add_variable(varname, [0,1])
-		score = labelprobabilities[0][index]
-		print varname, score
-		testcsp.add_unary_potential(varname, lambda x: math.pow(score, x) * math.pow(1-score, 1-x))
-backsearch.solve(testcsp, False, False, False)#gives memory error for full set of labels, need to switch to actual library
-print backsearch.optimalAssignment
+#Create a new csp for each example and assign unary potentials according to the classifier
+#Solve the csp using backtracking search
+#Compare the resulting assignment to the goldlabel vectors to get accuracy
+trainpredictedvectors = []
+numtrainingexamples = testX.shape[0]
+for exampleindex in range(numtrainingexamples):
+	#print 'index: ', exampleindex
+	examplecsp = CSP()
+	examplepredictedvector = []
+	#Load in variables and unary potentials for each labeltype
+	for labeltype in ['sentiment', 'event', 'time']:
+		numlabels = len(loader.labelnames[labeltype]) 
+		# get the unary probabilies for a given example index- sorted arithmetically so should be in order of increasing label index
+		labelprobabilities= classifiers[labeltype].predict_proba(testX[exampleindex])# testx needs to be in the correct format
+		for labelindex in range(numlabels):
+			# get the name of the variable in the csp
+			varname = loader.labelnames[labeltype][labelindex]
+			#only add variable to csp if it's probability of occuring is nontrivial to save memory
+			if labelprobabilities[0][labelindex] > probabilitythreshold:
+				# add a variable with domain 1 or 0 representing whether we want to classify this z
+				examplecsp.add_variable(varname, [0,1])
+				score = labelprobabilities[0][labelindex]
+				examplecsp.add_unary_potential(varname, lambda x: math.pow(score, x) * math.pow(1-score, 1-x))
+	#solve the current example csp 
+	backsearch.solve(examplecsp, True, True, True)#gives memory error for full set of labels, need to switch to actual library
+	optimalAssignment = Counter(backsearch.optimalAssignment)	
 
+	#Get the predictedlabelvector from the backtrackingsearch output
+	for labeltype in [ 'sentiment', 'event', 'time']:
+		labelvector = []
+		for labelname in loader.labelnames[labeltype]:
+			labelvector.append(optimalAssignment[labelname])
+			examplepredictedvector.append(optimalAssignment[labelname])
+	trainpredictedvectors.append(examplepredictedvector)
+
+#Perform evaluation on resulting predicted label vector and gold label vector
+print 'evaluating results'
+evaluator = evaluation.Evaluator()
+print 'average rms error' , evaluator.rmse(trainpredictedvectors, testgoldvectors)
+print 'average error', evaluator.error_rate(trainpredictedvectors, testgoldvectors)
 
