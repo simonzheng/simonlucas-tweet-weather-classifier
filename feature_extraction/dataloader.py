@@ -69,7 +69,7 @@ class DataLoader:
 		return confidencevector
 	
 	#extracts a dictionary containing bit vectors for each label for each training
-	#instance - 1 if greater than threshold and 0 otherwise
+	#instance: 1 if greater than threshold and 0 otherwise
 	def getBitVector(self, examplevector, threshold):
 		bitvector = [] 
 		for x in examplevector:
@@ -94,10 +94,11 @@ class DataLoader:
 		return maxlabel
 
 
-	def extractLabelBitVectors(self, threshold):
+	def extractLabelBitVectors(self, threshold, indices=None):
 		confidences = self.extractLabelConfidences()
 		bitvectors = {'sentiment':[], 'event':[], 'time':[]}
 		for i in range(len(self.raw_test_data)):
+			if (indices != None and i not in indices): continue # skip the rest of this loop if indices are specified and we are on an index that's not in the specified indices
 			#sentimentbitvector = dict([(key,1) if confidences['sentiment'][i][key] > threshold else (key,0) for key in confidences['sentiment'][i] ])
 			sentimentbitvector = self.getBitVector(confidences['sentiment'][i], threshold)
 			eventbitvector = self.getBitVector(confidences['event'][i], threshold)
@@ -120,6 +121,12 @@ class DataLoader:
 			bitvectors['event'].append(eventbitvector) 
  			bitvectors['time'].append(timebitvector) 
 		return bitvectors
+
+	def bitstringToIntList(self, bitstring):
+		newList = bitstring[1:len(bitstring)-1]
+		newList = [int(val) for val in newList.split(',')]
+		return newList
+
 	#outputs a set of one index for each label class representing most likely
 	#label 
 	def extractLabelIndices(self):
