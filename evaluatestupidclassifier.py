@@ -33,5 +33,9 @@ for labeltype in goodwords:
 	print labeltype, ' : ', rmse
 	onevallstupid = Stupid_Factory(goodwords[labeltype])
 	Get_Error(onevallstupid,testfeaturevectors, testlabelvectors)
+
+>>>>>>> b3d8706ca23b6567b78e77cce94b0dcefb1f6a51
 		
+
+
 def Get_Error(classifier, testfeaturevectors, expected):
