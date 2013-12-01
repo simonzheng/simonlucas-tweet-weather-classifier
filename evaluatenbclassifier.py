@@ -5,6 +5,7 @@ from feature_extraction import dataloader
 import ast
 from sklearn.cross_validation import KFold
 import evaluation
+import time
 
 labeltypes = ['sentiment', 'event', 'time']
 
@@ -50,7 +51,11 @@ for train_indices, test_indices in kf:
 	print 'Currently performing k-fold validation on fold iteration #%d' %(fold_count)
 	print('Train: %s; Test: %s' %(train_indices, test_indices))
 	# get the count matrix representing the wordcount of each word for each example
+	print 'Getting training and test Count Matrices...'
+	start_time = time.time()
 	trainX, testX = loader.extractTrainingAndTestCountMatrices(training_indices=train_indices)
+	elapsed_time = time.time() - start_time
+	print 'Completed Getting training and test Count Matrices... took ', elapsed_time
 	# the confidencethreshold parameter designates the cutoff confidence score for converting discrete confidences to binary values 
 	confidencethreshold = .5
 	# get the label vectors in the form of bit strings ( one bit string for each label type for each examples)
@@ -93,7 +98,7 @@ for train_indices, test_indices in kf:
 		start_time = time.time()
 		predictions_list = [loader.bitstringToIntList(classifiers[labeltype].predict(test_vector)[0]) for test_vector in testX]
 		elapsed_time = time.time() - start_time
-		print 'Finished converting prediction bitstrings to bitvectors... took ', elapsed_time
+		print 'Completed converting prediction bitstrings to bitvectors... took ', elapsed_time
 		gold_list = testlabelbitvectors[labeltype]
 
 		# # Sanity check that conversion from bitstring to bitvector was successful
