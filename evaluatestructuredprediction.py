@@ -6,6 +6,23 @@ from backtrackingsearch import BacktrackingSearch
 import math
 from constraint import *
 from collections import Counter
+import csv
+
+#Helper method for adding binary constrains
+def add_binary_constraints(constraints, csp):
+	for constraint in binaryConstraints:
+ 		label1 = constraint[0]
+ 		label2 = constraint[1]
+ 		# We add a constraint for each pair of labels in our constraint specifying that we cannot have both of them co-occurring (i.e. turned to 1)
+ 		if label1 in csp.varNames and label2 in csp.varNames:
+ 			csp.add_binary_potential(label1, label2, lambda l1, l2 : l1 + l2 <= 1)
+
+def loadConstraints(filename):
+    with open(filename, 'r') as f:
+        data = [row for row in csv.reader(f.read().splitlines())]
+    return data
+
+binaryConstraints = loadConstraints('binary-constraints.csv')
 
 loader = dataloader.DataLoader('data/train.csv')
 testloader = dataloader.DataLoader('data/test_100.csv')
@@ -50,21 +67,21 @@ for labeltype in ['sentiment', 'event', 'time']:
 print 'running csp on each example'
 backsearch = BacktrackingSearch() 
 #controls the minimum probability for a label to be considered in the csp
-probabilitythreshold = .3
+probabilitythreshold = .2
 # controls the minimum confidence for a label to be present in the gold bit vector
 confidencethreshold = .5
 # gold output for evaluation for each training example
-testgoldvectors = testloader.extractCompositeLabelBitVectors(confidencethreshold)
+testgoldvectors = testloader.extractLabelBitVectors(confidencethreshold)
 
 #Create a new csp for each example and assign unary potentials according to the classifier
 #Solve the csp using backtracking search
 #Compare the resulting assignment to the goldlabel vectors to get accuracy
-trainpredictedvectors = []
+
+predictedvectors = {'sentiment':[], 'event':[], 'time':[]}
 numtrainingexamples = testX.shape[0]
 for exampleindex in range(numtrainingexamples):
 	#print 'index: ', exampleindex
 	examplecsp = CSP()
-	examplepredictedvector = []
 	#Load in variables and unary potentials for each labeltype
 	for labeltype in ['sentiment', 'event', 'time']:
 		numlabels = len(loader.labelnames[labeltype]) 
@@ -79,21 +96,23 @@ for exampleindex in range(numtrainingexamples):
 				examplecsp.add_variable(varname, [0,1])
 				score = labelprobabilities[0][labelindex]
 				examplecsp.add_unary_potential(varname, lambda x: math.pow(score, x) * math.pow(1-score, 1-x))
+	#add_binary_constraints(binaryConstraints, examplecsp)
 	#solve the current example csp 
 	backsearch.solve(examplecsp, True, True, True)#gives memory error for full set of labels, need to switch to actual library
 	optimalAssignment = Counter(backsearch.optimalAssignment)	
 
-	#Get the predictedlabelvector from the backtrackingsearch output
+	#Get the predicted vectors from the backtrackingsearch output for each labeltype
 	for labeltype in [ 'sentiment', 'event', 'time']:
 		labelvector = []
 		for labelname in loader.labelnames[labeltype]:
 			labelvector.append(optimalAssignment[labelname])
-			examplepredictedvector.append(optimalAssignment[labelname])
-	trainpredictedvectors.append(examplepredictedvector)
+		predictedvectors[labeltype].append(labelvector)
 
 #Perform evaluation on resulting predicted label vector and gold label vector
 print 'evaluating results'
 evaluator = evaluation.Evaluator()
-print 'average rms error' , evaluator.rmse(trainpredictedvectors, testgoldvectors)
-print 'average error', evaluator.error_rate(trainpredictedvectors, testgoldvectors)
+for labeltype in ['sentiment', 'event', 'time']:
+	print 'average rms error for', labeltype, ' : ' , evaluator.rmse(predictedvectors[labeltype], testgoldvectors[labeltype])
+	print 'average error for', labeltype, ' : ' ,  evaluator.error_rate(predictedvectors[labeltype], testgoldvectors[labeltype])
+
 
