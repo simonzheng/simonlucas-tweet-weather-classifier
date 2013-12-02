@@ -27,7 +27,7 @@ binaryConstraints = loadConstraints('binary-constraints.csv')
 loader = dataloader.DataLoader('data/train.csv')
 testloader = dataloader.DataLoader('data/test_100.csv')
 #sparse matrix representing training wordcounts for MultinomialNB
-trainX = loader.extractNBCountMatrix()
+trainX = loader.extractStructuredNBCountMatrix()
 #sparse matrix representing test word counts for MultinomialNB
 testX = loader.extractNBTestCountMatrix(testloader.corpus)
 

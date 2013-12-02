@@ -6,6 +6,13 @@ class DataLoader:
 	def __init__(self, testfile):
 		self.raw_test_data = self.loadTrainData(testfile)
 		self.numDataPoints = len(self.raw_test_data)
+		self.labelnames = {'sentiment':['s1', 's2', 's3', 's4', 's5'], 
+		'time':['w1', 'w2', 'w3', 'w4'],
+		'event':['k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'k7', 'k8', 'k9', 'k10', 'k11', 'k12', 'k13', 'k14', 'k15']
+		}
+		self.vectorizer = CountVectorizer(min_df=1)
+		self.corpus = [entry['tweet'] for entry in self.raw_test_data]
+ 
 	# returns the raw data in dictionary form where we can access the tweet with raw_test_data[<entryindex>]['tweet]']
 	def loadTrainData(self, filename):
 		raw_data = []
@@ -23,6 +30,11 @@ class DataLoader:
 			features.append(collections.Counter(text.split(' ')))
 		return features
 
+	# Old Verson that works with structureprediction implementation
+	def extractStructuredNBCountMatrix(self):
+		X = self.vectorizer.fit_transform(self.corpus)
+		return X
+
 	# returns a matrix representing word count that can be used to train a scikit classifier
 	def extractNBCountMatrix(self, indices=None):
 		vectorizer = CountVectorizer(min_df=1)
@@ -33,6 +45,9 @@ class DataLoader:
 
 		X = vectorizer.fit_transform(corpus)
 		return X
+
+	def extractNBTestCountMatrix(self, testcorpus):
+		return self.vectorizer.transform(testcorpus)
 
 	# This is used for evaluatenb classifier!
 	def extractTrainingAndTestCountMatrices(self, training_indices):
@@ -54,18 +69,18 @@ class DataLoader:
 			#confidence['sentiment'].append(dict([(key, example[key]) for key in example if key[0] =='s']))
 			#confidence['event'].append(dict([(key, example[key]) for key in example if key[0] =='k']))
 			#confidence['time'].append(dict([(key, example[key]) for key in example if key[0] =='w' ]))
-			confidence['sentiment'].append(self.getConfidenceVector(example, 's'))
-			confidence['event'].append(self.getConfidenceVector(example, 'k'))
-			confidence['time'].append(self.getConfidenceVector(example, 'w'))
+			confidence['sentiment'].append(self.getConfidenceVector(example, 'sentiment'))
+			confidence['event'].append(self.getConfidenceVector(example, 'event'))
+			confidence['time'].append(self.getConfidenceVector(example, 'time'))
 		return confidence
 
 	# convert the dictionary representing an example into a list of confidences for 
 	# a single label type
-	def getConfidenceVector(self, exampledict, prefix ):
-		confidencevector = []
-		for key in exampledict:
-			if key[0] == prefix and len(key) < 5: #HACK differentiate key "state" and "s1"
-				confidencevector.append(float(exampledict[key]))
+	def getConfidenceVector(self, example, sentiment):
+		confidencevector = [] 
+		for labelname in self.labelnames[sentiment]:
+			confidencevector.append(float(example[labelname]))
+			#print labelname
 		return confidencevector
 	
 	#extracts a dictionary containing bit vectors for each label for each training
@@ -128,18 +143,34 @@ class DataLoader:
 		return newList
 
 	#outputs a set of one index for each label class representing most likely
-	#label 
+	#label, ignoring any other nonzero confidences. To make dataset more complete, might want to recopy training examples 
+	#with multiple labels. 
 	def extractLabelIndices(self):
 		confidences = self.extractLabelConfidences()
 		labeldicts = {'sentiment':[], 'event':[], 'time':[]}
 		for i in range(len(self.raw_test_data)):
-			sentimentlabel = self.getMaxLabel(confidences['sentiment'][i])
+			sentimentlabel = self.getMaxLabel(confidences['sentiment'][i]) # sentiment label with highest confidence - ignore others
 			eventlabel = self.getMaxLabel(confidences['event'][i])
 			timelabel = self.getMaxLabel(confidences['time'][i])
 			labeldicts['sentiment'].append(sentimentlabel)
 			labeldicts['event'].append(eventlabel)
 			labeldicts['time'].append(timelabel)
 		return labeldicts
+
+	#outputs a set of one label for each label class representing most likely
+	#label, ignoring any other nonzero confidences.
+	def extractLabelNames(self):
+		confidences = self.extractLabelConfidences()
+		labeldicts = {'sentiment':[], 'event':[], 'time':[]}
+		for i in range(len(self.raw_test_data)):
+			sentimentindex = self.getMaxLabel(confidences['sentiment'][i]) # sentiment label with highest confidence - ignore others
+			eventindex = self.getMaxLabel(confidences['event'][i])
+			timeindex = self.getMaxLabel(confidences['time'][i])
+			labeldicts['sentiment'].append(self.labelnames['sentiment'][sentimentindex])
+			labeldicts['event'].append(self.labelnames['event'][eventindex])
+			labeldicts['time'].append(self.labelnames['time'][timeindex])
+		return labeldicts
+
 
 # hacky solution to get the number of labels in each category
 	def getNumLabels(self):
