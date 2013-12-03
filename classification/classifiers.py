@@ -56,16 +56,13 @@ class OneVsAllClassifier():
             output.append(c.classify(x))
         return output
         # END_YOUR_CODE
-<<<<<<< HEAD
 #Stupid_Classifier is a binary classifier initialized with a list of words that are 
 #relevant to the positive label. If there are any matches with the good words in the 
 #test set then the classifier will return 1. Else it will return 0.
-=======
 
 #Stupid_Classifier is a binary classifier initialized with a list of words that are 
 #relevant to the positive label. If there are any matches with the good words in the 
 #test set then the classifier will return 1. Else it will return 0. 
->>>>>>> b3d8706ca23b6567b78e77cce94b0dcefb1f6a51
 class Stupid_Classifier():
 	def __init__(self, goodwords):
 		self.goodwords = goodwords
