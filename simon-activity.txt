@@ -1,0 +1,6 @@
+*** Downloaded Stanford POS tagger
+*** Downloaded Gates Twitter tagger module and used that model
+*** Created new file with just unlabeled corpus traintweets_unlabeled.csv
+*** Ran: java -mx300m -classpath stanford-postagger.jar edu.stanford.nlp.tagger.maxent.MaxentTagger -model models/gate-EN-twitter.model -textFile ../traintweets_unlabeled.csv > ../traintweets_labeled.csv				[note: ran overnight because it took a while to label]
+*** Downloaded NLTK and read the tagged corpus into a verbs
+*** Looked for the highest Pointwise Mutual Information phrases here as activities: http://stackoverflow.com/questions/2452982/how-to-extract-common-significant-phrases-from-a-series-of-text-entries

@@ -1,8 +1,7 @@
 import numpy as np
 from sklearn.naive_bayes import MultinomialNB
-#import evaluation
 from feature_extraction import dataloader
-import ast
+# import ast
 from sklearn.cross_validation import KFold
 import evaluation
 import time
@@ -21,7 +20,7 @@ trainlabelbitstrings = loader.extractLabelBitStrings(confidencethreshold)
 
 classifiers = {}
 # train a multinomial naive bayes classifier for each label class 
-for labeltype in ['sentiment', 'event', 'time']:
+for labeltype in labeltypes:
 	nbclassifier = MultinomialNB()
 	#the training label bit string for the given label class
 	y = trainlabelbitstrings[labeltype]
@@ -32,7 +31,7 @@ for labeltype in ['sentiment', 'event', 'time']:
 
 print '\n************* Evaluating our Naive Bayes Classifier on Training Data *************\n'
 #evaluate the training accuracy of the classifier for each label class using the internal MultinomialNB score method 
-for labeltype in ['sentiment', 'event', 'time']:
+for labeltype in labeltypes:
 	accuracy = classifiers[labeltype].score(trainX, trainlabelbitstrings[labeltype])
 	print "Training Accuracy for " + labeltype + " labels: ", accuracy
 
@@ -80,7 +79,7 @@ for train_indices, test_indices in kf:
 
 	classifiers = {}
 	# train a multinomial naive bayes classifier for each label class 
-	for labeltype in ['sentiment', 'event', 'time']:
+	for labeltype in labeltypes:
 		nbclassifier = MultinomialNB()
 		#the training label bit string for the given label class
 		y = trainlabelbitstrings[labeltype]
@@ -89,14 +88,19 @@ for train_indices, test_indices in kf:
 		#putting the classifier in the dictionary
 		classifiers[labeltype] = nbclassifier
 
-	for labeltype in ['sentiment', 'event', 'time']:
+	for labeltype in labeltypes:
 		# Calculate MultinomialNB accuracy scores
 		accuracy = classifiers[labeltype].score(testX, testlabelbitstrings[labeltype])
 		
 		# Calculate RMSE scores
-		print 'Converting prediction bitstrings to bitvectors...'
+		print 'Making predictions and converting prediction bitstrings to bitvectors for %s labels...' %(labeltype)
 		start_time = time.time()
-		predictions_list = [loader.bitstringToIntList(classifiers[labeltype].predict(test_vector)[0]) for test_vector in testX]
+		predictions_list = []
+		for testX_matrixcounts in testX:
+			predicted_label = classifiers[labeltype].predict(testX_matrixcounts)[0]
+			predicted_bitvector = loader.bitstringToIntList(predicted_label)
+			predictions_list.append(predicted_bitvector)
+		
 		elapsed_time = time.time() - start_time
 		print 'Completed converting prediction bitstrings to bitvectors... took ', elapsed_time
 		gold_list = testlabelbitvectors[labeltype]

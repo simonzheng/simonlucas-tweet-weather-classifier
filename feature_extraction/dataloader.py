@@ -10,6 +10,7 @@ class DataLoader:
 		'time':['w1', 'w2', 'w3', 'w4'],
 		'event':['k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'k7', 'k8', 'k9', 'k10', 'k11', 'k12', 'k13', 'k14', 'k15']
 		}
+		self.labeltypes = ['sentiment', 'time', 'event']
 		self.vectorizer = CountVectorizer(min_df=1)
 		self.corpus = [entry['tweet'] for entry in self.raw_test_data]
  
@@ -39,12 +40,29 @@ class DataLoader:
 	def extractNBCountMatrix(self, indices=None):
 		vectorizer = CountVectorizer(min_df=1)
 		corpus = []
-		for i in range(len(self.raw_test_data)):
-			if (indices != None and i not in indices): continue
-			corpus.append(self.raw_test_data[i]['tweet'])
+		if indices != None:
+			for index in indices:
+				corpus.append(self.corpus[index])
+		else:
+			corpus = self.corpus
 
 		X = vectorizer.fit_transform(corpus)
 		return X
+
+	# returns a fitted vectorizer that is trained on the corpus 
+	# (or a subset of the corpus specified by certain indices) that can be used to
+	# convert test string corpuses into count matrices with vectorizer.transform(testcorpus)
+	def extractNBCountMatrixFittedVectorizer(self, indices=None):
+		vectorizer = CountVectorizer(min_df=1)
+		corpus = []
+		if indices != None:
+			for index in indices:
+				corpus.append(self.corpus[index])
+		else:
+			corpus = self.corpus
+
+		vectorizer.fit_transform(corpus)
+		return vectorizer
 
 	def extractNBTestCountMatrix(self, testcorpus):
 		return self.vectorizer.transform(testcorpus)
@@ -52,13 +70,14 @@ class DataLoader:
 	# This is used for evaluatenb classifier!
 	def extractTrainingAndTestCountMatrices(self, training_indices):
 		vectorizer = CountVectorizer(min_df=1)
-		training_corpus = []
-		testing_corpus = []
+		training_corpus, testing_corpus = [], []
+		
 		for i in range(len(self.raw_test_data)):
 			if (i in training_indices):
-				training_corpus.append(self.raw_test_data[i]['tweet'])
+				training_corpus.append(self.corpus[i])
 			else:
-				testing_corpus.append(self.raw_test_data[i]['tweet'])
+				testing_corpus.append(self.corpus[i])
+
 		trainX = vectorizer.fit_transform(training_corpus)
 		testX = vectorizer.transform(testing_corpus)
 		return trainX, testX
@@ -122,6 +141,17 @@ class DataLoader:
 			bitvectors['event'].append(eventbitvector) 
  			bitvectors['time'].append(timebitvector) 
 		return bitvectors
+
+	# combines the bitvectors or bitstrings in a dict to a long vector/string
+	def combineLabelBitVectors(self, bitvectorDict):
+		numVectors = len(bitvectorDict['sentiment'])
+		full_vectors = []
+		for i in range(numVectors):
+			newVector = []
+			for labeltype in self.labeltypes:
+				newVector += bitvectorDict[labeltype][i]
+			full_vectors.append(newVector)
+		return full_vectors
 
 	def extractLabelBitStrings(self, threshold, indices=None):
 		confidences = self.extractLabelConfidences()
