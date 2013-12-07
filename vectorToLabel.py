@@ -41,6 +41,7 @@ class Converter:
 			'k15' : "wind"
 		}
 		self.numKeys = len(self.map)
+		self.labeltypes = ['sentiment', 'time', 'event']
 
 	def convertToLabels(self, bitvector):
 		labels = {	'sentiment': [],
@@ -57,3 +58,9 @@ class Converter:
 				else:
 					labels['event'].append(self.map[keys[i]])
 		return labels
+
+	def printLabels(self, fullbitvector):
+		print '\tfullbitvector: %s' %(fullbitvector)
+		for labeltype in self.labeltypes:
+			labels = self.convertToLabels(fullbitvector)
+			print '\t%s labels: %s' %(labeltype, labels[labeltype])

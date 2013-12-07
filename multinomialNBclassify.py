@@ -102,10 +102,8 @@ for i in range(len(tweetsToBeTagged)):
 			actual_labels = converter.convertToLabels(gold_list[i])
 			print '\tActual %s labels: %s' %(labeltype, actual_labels[labeltype])
 	print '******************************************'
-	print '\tPredicted bitvector: %s' %(predictions_list[i])
-	for labeltype in labeltypes:
-		predicted_labels = converter.convertToLabels(predictions_list[i])
-		print '\tPredicted %s labels: %s' %(labeltype, predicted_labels[labeltype])
+	print '\tPredicted bitvector: '
+	converter.printLabels(predictions_list[i])
 
 print '******************************************'
 evaluator = evaluation.Evaluator()

@@ -5,14 +5,20 @@ from sklearn.feature_extraction.text import CountVectorizer
 class DataLoader:
 	def __init__(self, testfile):
 		self.raw_test_data = self.loadTrainData(testfile)
-		self.numDataPoints = len(self.raw_test_data)
-		self.labelnames = {'sentiment':['s1', 's2', 's3', 's4', 's5'], 
-		'time':['w1', 'w2', 'w3', 'w4'],
-		'event':['k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'k7', 'k8', 'k9', 'k10', 'k11', 'k12', 'k13', 'k14', 'k15']
-		}
+		self.labelnames = \
+			{'sentiment':['s1', 's2', 's3', 's4', 's5'], 
+			'time':['w1', 'w2', 'w3', 'w4'],
+			'event':['k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'k7', 'k8', 'k9', 'k10', 'k11', 'k12', 'k13', 'k14', 'k15']
+			}
+		self.ordered_keys = ['s1', 's2', 's3', 's4', 's5', 
+							'w1', 'w2', 'w3', 'w4', 
+							'k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'k7', 'k8', 
+							'k9', 'k10', 'k11', 'k12', 'k13', 'k14', 'k15']
 		self.labeltypes = ['sentiment', 'time', 'event']
 		self.vectorizer = CountVectorizer(min_df=1)
 		self.corpus = [entry['tweet'] for entry in self.raw_test_data]
+		self.numDataPoints = len(self.raw_test_data)
+		self.totalNumLabels = len(self.labelnames['sentiment']) + len(self.labelnames['time']) + len(self.labelnames['event'])
  
 	# returns the raw data in dictionary form where we can access the tweet with raw_test_data[<entryindex>]['tweet]']
 	def loadTrainData(self, filename):
@@ -93,11 +99,24 @@ class DataLoader:
 			confidence['time'].append(self.getConfidenceVector(example, 'time'))
 		return confidence
 
+	def extractFullLabelConfidenceVectors(self):
+		fullLabelConfidenceVectors = []
+		for example in self.raw_test_data:
+			confidenceVector = []
+			#confidence['sentiment'].append(dict([(key, example[key]) for key in example if key[0] =='s']))
+			#confidence['event'].append(dict([(key, example[key]) for key in example if key[0] =='k']))
+			#confidence['time'].append(dict([(key, example[key]) for key in example if key[0] =='w' ]))
+			confidenceVector += self.getConfidenceVector(example, 'sentiment')
+			confidenceVector += self.getConfidenceVector(example, 'time')
+			confidenceVector += self.getConfidenceVector(example, 'event')
+			fullLabelConfidenceVectors.append(confidenceVector)
+		return fullLabelConfidenceVectors
+
 	# convert the dictionary representing an example into a list of confidences for 
 	# a single label type
-	def getConfidenceVector(self, example, sentiment):
+	def getConfidenceVector(self, example, labeltype):
 		confidencevector = [] 
-		for labelname in self.labelnames[sentiment]:
+		for labelname in self.labelnames[labeltype]:
 			confidencevector.append(float(example[labelname]))
 			#print labelname
 		return confidencevector
@@ -105,12 +124,11 @@ class DataLoader:
 	#extracts a dictionary containing bit vectors for each label for each training
 	#instance: 1 if greater than threshold and 0 otherwise
 	def getBitVector(self, examplevector, threshold):
-		bitvector = [] 
-		for x in examplevector:
+		bitvector = [0 for _ in examplevector]
+		for i in range(len(examplevector)):
+			x = examplevector[i]
 			if x > threshold:
-				bitvector.append(1)
-			else:
-				bitvector.append(0)
+				bitvector[i] = 1
 		return bitvector
 		
 	def getBitString(self, examplevector, threshold):
@@ -163,8 +181,8 @@ class DataLoader:
 			eventbitvector = self.getBitString(confidences['event'][i], threshold)
 			timebitvector = self.getBitString(confidences['time'][i], threshold)
 			bitvectors['sentiment'].append(sentimentbitvector)
-			bitvectors['event'].append(eventbitvector) 
- 			bitvectors['time'].append(timebitvector) 
+			bitvectors['time'].append(timebitvector) 
+			bitvectors['event'].append(eventbitvector)
 		return bitvectors
 
 	def bitstringToIntList(self, bitstring):
@@ -202,7 +220,7 @@ class DataLoader:
 		return labeldicts
 
 
-# hacky solution to get the number of labels in each category
+	# hacky solution to get the number of labels in each category
 	def getNumLabels(self):
 		confidences = self.extractLabelConfidences()
 		sentimentbitvector = self.getBitVector(confidences['sentiment'][0], 0)
@@ -210,5 +228,50 @@ class DataLoader:
 		timebitvector = self.getBitVector(confidences['time'][0], 0)
 		return {'sentiment':len(sentimentbitvector), 'event':len(eventbitvector), 'time':len(timebitvector)}
 
+	# Returns all unigram words
+	def getAllWords(self):
+		words = []
+		for tweet in self.corpus:
+			words += [word.lower() for word in tweet.split()]
+		return words
+
+	# Returns all unigram words
+	def getAllBigramWords(self):
+		bigram_words = []
+		for tweet in self.corpus:
+			prevWord = '<START>'
+			words = tweet.split()
+			for word in words:
+				word = word.lower()
+				bigram_words.append((prevWord, word))
+				prevWord = word
+		return bigram_words
+
+	def extractFullLabelBitVectors(self, event_conf_threshold):
+		fullLabelBitVectors = []
+		for example in self.raw_test_data:
+			bitVector = self.getSentimentBitVector(example) + \
+						self.getTimeBitVector(example) + \
+						self.getEventBitVector(example, event_conf_threshold)
+			fullLabelBitVectors.append(bitVector)
+		return fullLabelBitVectors
 
 
+	def getSentimentBitVector(self, example):
+		sentConfVec = self.getConfidenceVector(example, 'sentiment')
+		indexOfMaxConf = sentConfVec.index(max(sentConfVec))
+		sentBitVec = [0 for _ in range(len(sentConfVec))]
+		sentBitVec[indexOfMaxConf] = 1
+		return sentBitVec
+
+	def getTimeBitVector(self, example):
+		timeConfVec = self.getConfidenceVector(example, 'time')
+		indexOfMaxConf = timeConfVec.index(max(timeConfVec))
+		timeBitVec = [0 for _ in range(len(timeConfVec))]
+		timeBitVec[indexOfMaxConf] = 1
+		return timeBitVec
+
+	def getEventBitVector(self, example, threshold):
+		eventConfVec = self.getConfidenceVector(example, 'event')
+		eventBitVec = [1 if conf >= threshold else 0 for conf in eventConfVec]
+		return eventBitVec
