@@ -16,7 +16,8 @@ class DataLoader:
 							'k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'k7', 'k8', 
 							'k9', 'k10', 'k11', 'k12', 'k13', 'k14', 'k15']
 		self.labeltypes = ['sentiment', 'time', 'event']
-		self.vectorizer = CountVectorizer(min_df=1)
+		self.vectorizer = CountVectorizer(ngram_range=(1,2),
+			token_pattern=r'\b\w+\b', min_df=1)
 		self.corpus = [entry['tweet'] for entry in self.raw_test_data]
 		self.numDataPoints = len(self.raw_test_data)
 		self.totalNumLabels = len(self.labelnames['sentiment']) + len(self.labelnames['time']) + len(self.labelnames['event'])
@@ -48,7 +49,8 @@ class DataLoader:
 
 	# returns a matrix representing word count that can be used to train a scikit classifier
 	def extractNBCountMatrix(self, indices=None):
-		vectorizer = CountVectorizer(min_df=1)
+		vectorizer = CountVectorizer(ngram_range=(1,2),
+			token_pattern=r'\b\w+\b', min_df=1)
 		corpus = []
 		if indices != None:
 			for index in indices:
@@ -64,7 +66,7 @@ class DataLoader:
 	# convert test string corpuses into count matrices with vectorizer.transform(testcorpus)
 	def extractNBCountMatrixFittedVectorizer(self, indices=None):
 		vectorizer = CountVectorizer(ngram_range=(1,2),
-									token_pattern=r'\b\w+\b'
+									token_pattern=r'\b\w+\b',
 									min_df=1)
 		corpus = []
 		if indices != None:
@@ -80,7 +82,8 @@ class DataLoader:
 
 	# This is used for evaluatenb classifier!
 	def extractTrainingAndTestCountMatrices(self, training_indices):
-		vectorizer = CountVectorizer(min_df=1)
+		vectorizer = CountVectorizer(ngram_range=(1,2),
+			token_pattern=r'\b\w+\b', min_df=1)
 		training_corpus, testing_corpus = [], []
 		
 		for i in range(len(self.raw_test_data)):
