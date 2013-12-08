@@ -6,11 +6,16 @@ from sklearn.cross_validation import KFold
 import evaluation
 import time
 
+
+
+
+
 labeltypes = ['sentiment', 'event', 'time']
+filename = 'data/test_5.csv'
 
 #load the raw train csv file into the loader
 #TODO: load a separate train and held-out test file into separate loaders
-loader = dataloader.DataLoader('data/train.csv')
+loader = dataloader.DataLoader(filename)
 # get the count matrix representing the wordcount of each word for each example
 trainX = loader.extractNBCountMatrix()
 # the confidencethreshold parameter designates the cutoff confidence score for converting discrete confidences to binary values 
@@ -29,17 +34,24 @@ for labeltype in labeltypes:
 	#putting the classifier in the dictionary
 	classifiers[labeltype] = nbclassifier
 
-print '\n************* Evaluating our Naive Bayes Classifier on Training Data *************\n'
+
+
+
+
+
+
+print "\n************* Evaluating our Naive Bayes Classifier on Training Data *************\n"
 #evaluate the training accuracy of the classifier for each label class using the internal MultinomialNB score method 
 for labeltype in labeltypes:
 	accuracy = classifiers[labeltype].score(trainX, trainlabelbitstrings[labeltype])
 	print "Training Accuracy for " + labeltype + " labels: ", accuracy
 
 ######## K Means Cross-Validation with k=5 held-out test sets ###########
-print '\n************* Evaluating our Naive Bayes Classifier on Test Data *************\n'
-loader = dataloader.DataLoader('data/train.csv')
+print "\n************* Evaluating our Naive Bayes Classifier on Test Data *************\n"
+loader = dataloader.DataLoader(filename)
 numFolds = 5
 kf = KFold(loader.numDataPoints, n_folds=numFolds, indices=True)
+
 
 fold_count = 1
 all_accuracies, all_rmse = {}, {}

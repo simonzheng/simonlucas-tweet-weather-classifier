@@ -1,0 +1,42 @@
+data comes from file: data/train.csv and numFolds is 5
+
+returning 24 classifiers
+rmse: 0.265617591144
+rmse_by_class {'event': 0.16834730993657782, 'sentiment': 0.1604962104491157, 'time': 0.1282686804868679}
+absolute_accuracy 0.258242463117
+absolute_accuracy_by_class {'event': 0.5413726747915331, 'sentiment': 0.6148171905067351, 'time': 0.7752405388069276}
+
+returning 24 classifiers
+rmse: 0.266148838642
+rmse_by_class {'event': 0.16789166424284288, 'sentiment': 0.1621828270790801, 'time': 0.1278449216399996}
+absolute_accuracy 0.258643915581
+absolute_accuracy_by_class {'event': 0.5381358650330361, 'sentiment': 0.6059400859580474, 'time': 0.7786259541984732}
+
+returning 24 classifiers
+rmse: 0.26708116694
+rmse_by_class {'event': 0.1699407913354263, 'sentiment': 0.16121584565827346, 'time': 0.12830404624470534}
+absolute_accuracy 0.253704535249
+absolute_accuracy_by_class {'event': 0.5330681891077041, 'sentiment': 0.6099813971390082, 'time': 0.7787542497915196}
+
+returning 24 classifiers
+rmse: 0.264350157627
+rmse_by_class {'event': 0.16750117165061854, 'sentiment': 0.16004274612346076, 'time': 0.12732117948864988}
+absolute_accuracy 0.261145679646
+absolute_accuracy_by_class {'event': 0.5399961511322086, 'sentiment': 0.6080569632433126, 'time': 0.7791391365706588}
+
+returning 24 classifiers
+rmse: 0.266073508523
+rmse_by_class {'event': 0.16753308271428216, 'sentiment': 0.16155536113163407, 'time': 0.12894821993258274}
+absolute_accuracy 0.26069664507
+absolute_accuracy_by_class {'event': 0.540124446725255, 'sentiment': 0.6099813971390082, 'time': 0.7749053820001283}
+
+overall rmse =  0.265854252575
+overall rmse by class = 
+	sentiment 0.161098598088
+	time 0.128137409559
+	event 0.168242803976
+overall absolute_accuracy =  0.258486647733
+overall absolute_accuracy_by_class = 
+	sentiment 0.609755406797
+	time 0.777333052274
+	event 0.538539465358

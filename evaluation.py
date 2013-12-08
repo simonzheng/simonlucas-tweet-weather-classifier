@@ -21,35 +21,36 @@ import vectorToLabel
 # 	print gold
 
 class Evaluator:
-	def single_data_point_se(self, predicted_confidence_vector, gold_confidence_vector):
+	def __init__(self):
+		self.labelnames = \
+			{'sentiment':['s1', 's2', 's3', 's4', 's5'], 
+			'time':['w1', 'w2', 'w3', 'w4'],
+			'event':['k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'k7', 'k8', 'k9', 'k10', 'k11', 'k12', 'k13', 'k14', 'k15']
+			}
+		self.ordered_keys = ['s1', 's2', 's3', 's4', 's5', 
+							'w1', 'w2', 'w3', 'w4', 
+							'k1', 'k2', 'k3', 'k4', 'k5', 'k6', 'k7', 'k8', 
+							'k9', 'k10', 'k11', 'k12', 'k13', 'k14', 'k15']
+		self.label_types = ['sentiment', 'time', 'event']
+		self.label_indices = \
+			{'sentiment': range(0,5), 
+			'time': range(5,9),
+			'event': range(9,24)
+			}
+
+	def single_data_point_se(self, predicted_confidence_vector, gold_confidence_vector, index_range=None):
 		numLabels = len(predicted_confidence_vector)
+		label_indices = range(numLabels) if index_range == None else index_range
 		squared_error = 0.0
-		for label_index in range(numLabels):
+		for label_index in label_indices:
 			squared_error += math.pow((predicted_confidence_vector[label_index] - gold_confidence_vector[label_index]), 2)
 		return squared_error
+
 	def error_rate(self, predictions_list, gold_list):
+		self.check_matching_pred_gold(predictions_list, gold_list)
 		numPredictions = len(predictions_list)
-		if numPredictions <= 0: 
-			print "numPredictions <= 0"
-			exit()
-		if len(gold_list) <= 0:
-			print "len(gold_list) <= 0"
-			exit()
-		if numPredictions != len(gold_list):
-			print "predictions_list and gold_list do not match in number of features"
-			exit()
-
 		numLabels = len(predictions_list[0])
-		if numLabels <= 0:
-			print "prediction numLabels <= 0"
-			exit()
-		if len(gold_list[0]) <= 0:
-			print "gold numLabels <= 0"
-			exit()
-		if numLabels != len(gold_list[0]):
-			print "length of a prediction label vector and gold label vector do not match"
-			exit()
-
+		
 		#print "numPredictions is %d\nnumLabels is %d" %(numPredictions, numLabels)
 
 		# Note: ensure that numPredictions = len(gold_list) 
@@ -63,34 +64,12 @@ class Evaluator:
 				num_errors += 1
 		error_rate = float(num_errors) / numPredictions
 		return error_rate
+
 	def rmse(self, predictions_list, gold_list):
+		self.check_matching_pred_gold(predictions_list, gold_list)
+
 		numPredictions = len(predictions_list)
-		if numPredictions <= 0: 
-			print "numPredictions <= 0"
-			exit()
-		if len(gold_list) <= 0:
-			print "len(gold_list) <= 0"
-			exit()
-		if numPredictions != len(gold_list):
-			print "predictions_list and gold_list do not match in number of features"
-			exit()
-
 		numLabels = len(predictions_list[0])
-		if numLabels <= 0:
-			print "prediction numLabels <= 0"
-			exit()
-		if len(gold_list[0]) <= 0:
-			print "gold numLabels <= 0"
-			exit()
-		if numLabels != len(gold_list[0]):
-			print "length of a prediction label vector and gold label vector do not match"
-			exit()
-
-		#print "numPredictions is %d\nnumLabels is %d" %(numPredictions, numLabels)
-
-		# Note: ensure that numPredictions = len(gold_list) 
-		# Ensure that numPredictions > 0 and len(gold_list) > 0
-		# numLabels = len(gold_list[0])
 
 		total_squared_error = 0.0
 
@@ -101,11 +80,43 @@ class Evaluator:
 		root_mean_squared_error = math.sqrt(total_mean_squared_error)
 		return root_mean_squared_error
 
+	def rmse_by_labelclass(self, predictions_list, gold_list):
+		self.check_matching_pred_gold(predictions_list, gold_list)
+
+		numPredictions = len(predictions_list)
+		numLabels = len(predictions_list[0])
+		rmseDictByClass = {}
+		for label_type in self.label_types:
+			total_squared_error = 0.0
+			for prediction_index in range(len(predictions_list)):
+				# total_mean_squared_error += single_data_point_mse(predictions_list[prediction_index], gold_list[prediction_index])
+				total_squared_error += self.single_data_point_se(predictions_list[prediction_index], 
+																	gold_list[prediction_index], 
+																	index_range=self.label_indices[label_type])
+			total_mean_squared_error = total_squared_error / (numPredictions * numLabels)
+			root_mean_squared_error = math.sqrt(total_mean_squared_error)
+			rmseDictByClass[label_type] = root_mean_squared_error
+		return rmseDictByClass
+
 	def absolute_accuracy(self, predictions_list, gold_list):
+		self.check_matching_pred_gold(predictions_list, gold_list)
 		correct_vector = [tuple(predictions_list[i]) == tuple(gold_list[i]) for i in range(len(predictions_list))]
 		return float(correct_vector.count(True)) / len(correct_vector)
 
+	def absolute_accuracy_by_labelclass(self, predictions_list, gold_list):
+		self.check_matching_pred_gold(predictions_list, gold_list)
+
+		absAccuracyByClass = {}
+		for label_type in self.label_types:
+			idx_start = min(self.label_indices[label_type])
+			idx_end = max(self.label_indices[label_type])
+			correct_vector = [tuple(predictions_list[i][idx_start : idx_end]) == \
+								tuple(gold_list[i][idx_start : idx_end]) for i in range(len(predictions_list))]
+			absAccuracyByClass[label_type] = float(correct_vector.count(True)) / len(correct_vector)
+		return absAccuracyByClass
+
 	def show_errors(self, tweets, predictions_list, gold_list):
+		self.check_matching_pred_gold(predictions_list, gold_list)
 		print '\n~~~~~~~~~~~~~~~~~\nShowing Incorrect Tweets\n~~~~~~~~~~~~~~~~~'
 		converter = vectorToLabel.Converter()
 		correct_vector = [tuple(predictions_list[i]) == tuple(gold_list[i]) for i in range(len(predictions_list))]
@@ -120,6 +131,7 @@ class Evaluator:
 				converter.printLabels(predictions_list[i])
 
 	def show_correct(self, tweets, predictions_list, gold_list):
+		self.check_matching_pred_gold(predictions_list, gold_list)
 		print '\n~~~~~~~~~~~~~~~~~\nShowing CORRECT Tweets\n~~~~~~~~~~~~~~~~~'
 		converter = vectorToLabel.Converter()
 		correct_vector = [tuple(predictions_list[i]) == tuple(gold_list[i]) for i in range(len(predictions_list))]
@@ -132,6 +144,29 @@ class Evaluator:
 
 				print 'predictions_list[%i] was ' %(i), predictions_list[i]
 				converter.printLabels(predictions_list[i])
+
+	def check_matching_pred_gold(self, predictions_list, gold_list):
+		numPredictions = len(predictions_list)
+		if numPredictions <= 0: 
+			print "numPredictions <= 0"
+			exit()
+		if len(gold_list) <= 0:
+			print "len(gold_list) <= 0"
+			exit()
+		if numPredictions != len(gold_list):
+			print "predictions_list and gold_list do not match in number of tweets: predictions_list has %i and gold_list has %i" %(numPredictions, len(gold_list))
+			exit()
+
+		numLabels = len(predictions_list[0])
+		if numLabels <= 0:
+			print "prediction numLabels <= 0"
+			exit()
+		if len(gold_list[0]) <= 0:
+			print "gold numLabels <= 0"
+			exit()
+		if numLabels != len(gold_list[0]):
+			print "length of a prediction label vector and gold label vector do not match"
+			exit()
 
 
 
