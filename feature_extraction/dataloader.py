@@ -131,22 +131,21 @@ class DataLoader:
 	
 	#extracts a dictionary containing bit vectors for each label for each training
 	#instance: 1 if greater than threshold and 0 otherwise
-	def getBitVector(self, examplevector, threshold):
-		bitvector = [0 for _ in examplevector]
-		for i in range(len(examplevector)):
-			x = examplevector[i]
-			if x > threshold:
-				bitvector[i] = 1
-		return bitvector
+	# def getBitVector(self, examplevector, threshold):
+	# 	bitvector = [0 for _ in examplevector]
+	# 	for i in range(len(examplevector)):
+	# 		x = examplevector[i]
+	# 		if x > threshold:
+	# 			bitvector[i] = 1
+	# 	return bitvector
 		
-	def getBitString(self, examplevector, threshold):
-		bitvector = [] 
-		for x in examplevector:
-			if x > threshold:
-				bitvector.append(1)
-			else:
-				bitvector.append(0)
-		return str(bitvector)
+	# def getBitString(self, examplevector, threshold):
+	# 	bitvector = [0 for _ in examplevector]
+	# 	for i in range(len(examplevector)):
+	# 		x = examplevector[i]
+	# 		if x > threshold:
+	# 			bitvector[i] = 1
+	# 	return str(bitvector)
 
 	def getMaxLabel(self, examplevector):
 		maxconfidence = max(examplevector)
@@ -155,17 +154,13 @@ class DataLoader:
 
 
 	def extractLabelBitVectors(self, threshold, indices=None):
-		confidences = self.extractLabelConfidences()
-		bitvectors = {'sentiment':[], 'event':[], 'time':[]}
-		for i in range(len(self.raw_test_data)):
-			if (indices != None and i not in indices): continue # skip the rest of this loop if indices are specified and we are on an index that's not in the specified indices
-			#sentimentbitvector = dict([(key,1) if confidences['sentiment'][i][key] > threshold else (key,0) for key in confidences['sentiment'][i] ])
-			sentimentbitvector = self.getBitVector(confidences['sentiment'][i], threshold)
-			eventbitvector = self.getBitVector(confidences['event'][i], threshold)
-			timebitvector = self.getBitVector(confidences['time'][i], threshold)
-			bitvectors['sentiment'].append(sentimentbitvector)
-			bitvectors['event'].append(eventbitvector) 
- 			bitvectors['time'].append(timebitvector) 
+		bitvectors = {'sentiment':[], 'time':[], 'event':[]}
+		for example_idx in range(len(self.raw_test_data)):
+			if indices != None and example_idx not in indices: continue
+			example = self.raw_test_data[example_idx]
+			bitvectors['sentiment'].append((self.getSentimentBitVector(example)))
+			bitvectors['time'].append((self.getTimeBitVector(example)))
+			bitvectors['event'].append((self.getEventBitVector(example, event_conf_threshold)))
 		return bitvectors
 
 	# combines the bitvectors or bitstrings in a dict to a long vector/string
@@ -179,18 +174,14 @@ class DataLoader:
 			full_vectors.append(newVector)
 		return full_vectors
 
-	def extractLabelBitStrings(self, threshold, indices=None):
-		confidences = self.extractLabelConfidences()
-		bitvectors = {'sentiment':[], 'event':[], 'time':[]}
-		for i in range(len(self.raw_test_data)):
-			if (indices != None and i not in indices): continue # skip the rest of this loop if indices are specified and we are on an index that's not in the specified indices
-			#sentimentbitvector = dict([(key,1) if confidences['sentiment'][i][key] > threshold else (key,0) for key in confidences['sentiment'][i] ])
-			sentimentbitvector = self.getBitString(confidences['sentiment'][i], threshold)
-			eventbitvector = self.getBitString(confidences['event'][i], threshold)
-			timebitvector = self.getBitString(confidences['time'][i], threshold)
-			bitvectors['sentiment'].append(sentimentbitvector)
-			bitvectors['time'].append(timebitvector) 
-			bitvectors['event'].append(eventbitvector)
+	def extractLabelBitStrings(self, event_conf_threshold, indices=None):
+		bitvectors = {'sentiment':[], 'time':[], 'event':[]}
+		for example_idx in range(len(self.raw_test_data)):
+			if indices != None and example_idx not in indices: continue
+			example = self.raw_test_data[example_idx]
+			bitvectors['sentiment'].append(' '.join([str(item) for item in self.getSentimentBitVector(example)]))
+			bitvectors['time'].append(' '.join([str(item) for item in self.getTimeBitVector(example)]))
+			bitvectors['event'].append(' '.join([str(item) for item in self.getEventBitVector(example, event_conf_threshold)]))
 		return bitvectors
 
 	def bitstringToIntList(self, bitstring):
@@ -230,11 +221,14 @@ class DataLoader:
 
 	# hacky solution to get the number of labels in each category
 	def getNumLabels(self):
-		confidences = self.extractLabelConfidences()
-		sentimentbitvector = self.getBitVector(confidences['sentiment'][0], 0)
-		eventbitvector = self.getBitVector(confidences['event'][0], 0)
-		timebitvector = self.getBitVector(confidences['time'][0], 0)
-		return {'sentiment':len(sentimentbitvector), 'event':len(eventbitvector), 'time':len(timebitvector)}
+		# confidences = self.extractLabelConfidences()
+		# sentimentbitvector = self.getBitVector(confidences['sentiment'][0], 0)
+		# eventbitvector = self.getBitVector(confidences['event'][0], 0)
+		# timebitvector = self.getBitVector(confidences['time'][0], 0)
+		# return {'sentiment':len(sentimentbitvector), 'event':len(eventbitvector), 'time':len(timebitvector)}
+
+		# no longer hacky
+		return {'sentiment':len(self.labelnames['sentiment']), 'event':len(self.labelnames['event']), 'time':len(self.labelnames['time'])}
 
 	# Returns all unigram words after lower-casing and removing punctuations
 	def getAllWords(self):

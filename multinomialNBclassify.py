@@ -97,10 +97,8 @@ for i in range(len(tweetsToBeTagged)):
 	print 'Tweet: %s' %(tweetsToBeTagged[i])
 	if gold_list != None:
 		print '******************************************'
-		print '\tActual bitvector: %s' %(gold_list[i])
-		for labeltype in labeltypes:
-			actual_labels = converter.convertToLabels(gold_list[i])
-			print '\tActual %s labels: %s' %(labeltype, actual_labels[labeltype])
+		print '\tActual bitvector: '
+		converter.printLabels(gold_list[i])
 	print '******************************************'
 	print '\tPredicted bitvector: '
 	converter.printLabels(predictions_list[i])

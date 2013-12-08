@@ -50,6 +50,7 @@ class combinedNBClassifier:
 			all_rmse, all_rmse_by_class = [], []
 			all_abs_acc, all_abs_acc_by_class = [], []
 			for train_indices, test_indices in kf:
+				print 'performing kf tesing on ', test_indices
 				start_time = time.time()
 				# get training tweets and gold
 				self.training_tweets = [loader.corpus[train_idx] for train_idx in train_indices]
