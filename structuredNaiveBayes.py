@@ -26,10 +26,6 @@ class structuredNBClassifier:
 		self.label_types = ['sentiment', 'time', 'event']
 		# get the label vectors in the form of bit strings ( one bit string for each label type for each examples)
 
-		# for label_type in self.label_types:
-		# 	print label_type
-		# 	print trainlabelbitstrings_byclass[label_type]
-
 		self.gold_bitvectors = self.loader.extractFullLabelBitVectors(event_label_threshold)
 
 		# # Test Code to Print if we're extracting correctly

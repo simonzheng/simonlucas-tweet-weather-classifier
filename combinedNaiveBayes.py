@@ -176,8 +176,8 @@ class combinedNBClassifier:
 			predicted_labels_by_tweet.append(predicted_label)
 		return predicted_labels_by_tweet
 
-converter = vectorToLabel.Converter()
-nbc = combinedNBClassifier(data_filename='data/train.csv', numFolds=5)
+# converter = vectorToLabel.Converter()
+# nbc = combinedNBClassifier(data_filename='data/train.csv', numFolds=5)
 
 # def predictUsingNBC(nbc, test_filename):
 # 	loader = dataloader.DataLoader(test_filename)

@@ -36,23 +36,23 @@ for sentence in candidate_tagged_sents:
 
 # ****** Finding most Interesting Collocations ******
 
-from nltk.collocations import *
+# from nltk.collocations import *
 
-trainingdata_filename = 'traintweets_unlabeled.csv'
+# trainingdata_filename = 'traintweets_unlabeled.csv'
 
-bigram_measures = nltk.collocations.BigramAssocMeasures()
-trigram_measures = nltk.collocations.TrigramAssocMeasures()
+# bigram_measures = nltk.collocations.BigramAssocMeasures()
+# trigram_measures = nltk.collocations.TrigramAssocMeasures()
 
-# change this to read in your data
-finder = BigramCollocationFinder.from_words(
-   trainingdata_filename)
+# # change this to read in your data
+# finder = BigramCollocationFinder.from_words(
+#    trainingdata_filename)
 
-# only bigrams that appear 3+ times
-finder.apply_freq_filter(3) 
+# # only bigrams that appear 3+ times
+# finder.apply_freq_filter(3) 
 
-# return the 10 n-grams with the highest PMI
-highest_pmi = finder.nbest(bigram_measures.pmi, 10)  
-print highest_pmi
+# # return the 10 n-grams with the highest PMI
+# highest_pmi = finder.nbest(bigram_measures.pmi, 10)  
+# print highest_pmi
 
 # tag_fd = nltk.FreqDist((word, tag) in candidate_tagged_words)
 # print 'keys are... ', tag_fd.keys()

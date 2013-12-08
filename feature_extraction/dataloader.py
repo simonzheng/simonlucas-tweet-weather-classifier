@@ -153,7 +153,7 @@ class DataLoader:
 		return maxlabel
 
 
-	def extractLabelBitVectors(self, threshold, indices=None):
+	def extractLabelBitVectors(self, event_conf_threshold=1.0/3, indices=None):
 		bitvectors = {'sentiment':[], 'time':[], 'event':[]}
 		for example_idx in range(len(self.raw_test_data)):
 			if indices != None and example_idx not in indices: continue
@@ -174,7 +174,7 @@ class DataLoader:
 			full_vectors.append(newVector)
 		return full_vectors
 
-	def extractLabelBitStrings(self, event_conf_threshold, indices=None):
+	def extractLabelBitStrings(self, event_conf_threshold=1.0/3, indices=None):
 		bitvectors = {'sentiment':[], 'time':[], 'event':[]}
 		for example_idx in range(len(self.raw_test_data)):
 			if indices != None and example_idx not in indices: continue
@@ -258,7 +258,7 @@ class DataLoader:
 		if self.bigram_words == None: self.bigram_words = bigram_words
 		return bigram_words
 
-	def extractFullLabelBitVectors(self, event_conf_threshold):
+	def extractFullLabelBitVectors(self, event_conf_threshold=1.0/3):
 		fullLabelBitVectors = []
 		for example in self.raw_test_data:
 			bitVector = self.getSentimentBitVector(example) + \

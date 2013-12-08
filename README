@@ -1,6 +1,6 @@
-
-to run:
-
+*****************
+**** To Run: ****
+*****************
 structured nb classifier
 python evaluatenbclassifier.py
 
@@ -10,5 +10,18 @@ python combined___
 
 
 
+*****************
+*** Requires: ***
+*****************
 
+-- NLTK 2 or above to be installed; possible via e.g. 'apt-get install python-nltk' or 'easy_install nltk
+-- Stanford POS tagger
+-- Gates Twitter tagger module and used that model
+-- SKLearn v. 14.1.0
+-- 
+
+
+*****************
+* Saved Results *
+*****************
 Our results are in .txt files
