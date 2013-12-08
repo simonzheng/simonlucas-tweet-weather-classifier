@@ -63,14 +63,15 @@ class DataLoader:
 	# (or a subset of the corpus specified by certain indices) that can be used to
 	# convert test string corpuses into count matrices with vectorizer.transform(testcorpus)
 	def extractNBCountMatrixFittedVectorizer(self, indices=None):
-		vectorizer = CountVectorizer(min_df=1)
+		vectorizer = CountVectorizer(ngram_range=(1,2),
+									token_pattern=r'\b\w+\b'
+									min_df=1)
 		corpus = []
 		if indices != None:
 			for index in indices:
 				corpus.append(self.corpus[index])
 		else:
 			corpus = self.corpus
-
 		vectorizer.fit_transform(corpus)
 		return vectorizer
 
