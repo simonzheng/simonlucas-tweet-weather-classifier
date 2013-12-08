@@ -48,6 +48,9 @@ for labeltype in labeltypes:
 print '\n************* Finding similarly labeled tweets for input tweet %s *************\n', 
 def load_tweets():
 	tweetsToBeTagged_filename = sys.argv[1]
+	if len(tweetsToBeTagged_filename) <= 0:
+		print 'tweetsToBeTagged_filename must be at least one char!'
+		sys.exit()
 	tweetsToBeTagged = []
 	f = open(tweetsToBeTagged_filename)
 	tweetsToBeTagged = f.readlines()

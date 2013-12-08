@@ -155,8 +155,8 @@ class structuredNBClassifier:
 			predicted_labels_by_tweet.append(predicted_label)
 		return predicted_labels_by_tweet
 
-converter = vectorToLabel.Converter()
-nbc = structuredNBClassifier(data_filename='data/train.csv', numFolds=5)
+# converter = vectorToLabel.Converter()
+# nbc = structuredNBClassifier(data_filename='data/train.csv', numFolds=5)
 
 # # Note: use this if already trained but numFolds = 0
 # def predictUsingNBC(nbc, test_filename):

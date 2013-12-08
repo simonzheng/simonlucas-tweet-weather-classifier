@@ -6,21 +6,22 @@ import time
 import string
 from sklearn.cross_validation import KFold
 import evaluation
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+import numpy as np
+
+event_label_threshold = 1.0/3
 
 class combinedNBClassifier:
-	def __init__(self, training_filename = 'data/test_5.csv', eachlabel=True):
-		self.eachlabel = eachlabel
+	def __init__(self, data_filename, numFolds=0):
 		# Loading the data
-		start_time = time.time()
-
-		print 'training with file: %s' %(training_filename)
-		
-		loader = dataloader.DataLoader(training_filename)
-		event_label_threshold = 1.0/3
-		self.event_label_indices = range(9, 24)
+		print 'data comes from file: %s and numFolds is %i' %(data_filename, numFolds)
+		loader = dataloader.DataLoader(data_filename)
 		self.sentiment_label_indices = range(0,5)
 		self.time_label_indices = range(5,9)
-
+		self.event_label_indices = range(9, 24)
+		self.label_types = ['sentiment', 'time', 'event']
+		
 		self.gold_bitvectors = loader.extractFullLabelBitVectors(event_label_threshold)
 
 		# # Test Code to Print if we're extracting correctly
@@ -31,190 +32,159 @@ class combinedNBClassifier:
 		# 	print '\tbitvector is %s' %(self.gold_bitvectors[i])
 		# 	converter.printLabels(self.gold_bitvectors[i])
 
-		# Create unigram word features (gets x most common tweet words - lowercased)
-		all_unigram_words = nltk.FreqDist(loader.getAllWords())
-		self.word_features = all_unigram_words.keys()[:2000]
-		print all_unigram_words
-
-		# Create bigram word features (gets x most common bigram words - lowercased)
-		all_bigram_words = nltk.FreqDist(loader.getAllBigramWords())
-		self.bigram_features = all_bigram_words.keys()[:1000]
-		print all_bigram_words
-
 		# Get Useful Constants
 		self.totalNumLabels = loader.totalNumLabels
 		self.numDataPoints = loader.numDataPoints
 
-		# Convert all training data to features and labels
-		self.featurized_tweets = [self.tweet_features(tweet) for tweet in loader.corpus]
+		if numFolds == 0:
+			# Convert all training data to features and labels
+			self.training_tweets = loader.corpus
+			self.training_gold = self.gold_bitvectors
 
-		elapsed_time = time.time() - start_time
-		print 'finished init before classifiers and it took %f seconds ' %(elapsed_time)
-
-		self.classifiers = None
-		if eachlabel == False:
-			self.classifiers = self.getTrained24Classifiers()
+			self.vectorizer = loader.extractNBCountMatrixFittedVectorizer()
+			self.featurized_training_tweets = self.vectorizer.fit_transform(self.training_tweets)
+			# print self.vectorizer.get_feature_names()
+			self.classifiers = self.getClassifiers()
 		else:
-			self.classifiers = self.getTrainedClassifiersByLabelType()
+			kf = KFold(loader.numDataPoints, n_folds=numFolds, indices=True)
+			all_rmse, all_rmse_by_class = [], []
+			all_abs_acc, all_abs_acc_by_class = [], []
+			for train_indices, test_indices in kf:
+				print 'performing kf tesing on ', test_indices
+				start_time = time.time()
+				# get training tweets and gold
+				self.training_tweets = [loader.corpus[train_idx] for train_idx in train_indices]
+				self.training_gold = [self.gold_bitvectors[train_idx] for train_idx in train_indices]
+				
+				# fit vectorizer
+				self.vectorizer = loader.extractNBCountMatrixFittedVectorizer()
+				self.featurized_training_tweets = self.vectorizer.fit_transform(self.training_tweets)
+				# print 'finished fitting vectorizer and fitting training_tweets after this many seconds', time.time() - start_time
+				# print self.vectorizer.get_feature_names()
 
-	def getTrained24Classifiers(self):
+				# get test tweets and gold
+				self.test_tweets = [loader.corpus[test_idx] for test_idx in test_indices]
+				self.test_gold = [self.gold_bitvectors[test_idx] for test_idx in test_indices]
+
+				# Get classifiers with the featurized training tweets from vectorizer
+				self.classifiers = self.getClassifiers()
+				
+				# print 'finished getting classifiers after this many seconds:', time.time() - start_time
+				
+				rmse, rmse_by_class, absolute_accuracy, absolute_accuracy_by_class = self.evaluateOnTest(self.test_tweets, self.test_gold)
+				# print 'finished getting classifiers after this many seconds', time.time() - start_time
+				all_rmse.append(rmse)
+				all_rmse_by_class.append(rmse_by_class)
+				all_abs_acc.append(absolute_accuracy)
+				all_abs_acc_by_class.append(absolute_accuracy_by_class)
+
+			print 'overall rmse = ', np.mean(all_rmse)
+			print 'overall rmse by class = '
+			for label_type in self.label_types:
+				print '\t', label_type, np.mean([fold_rmse[label_type] for fold_rmse in all_rmse_by_class])
+			print 'overall absolute_accuracy = ', np.mean(all_abs_acc)
+			print 'overall absolute_accuracy_by_class = ' 
+			for label_type in self.label_types:
+				print '\t', label_type, np.mean([fold_rmse[label_type] for fold_rmse in all_abs_acc_by_class])
+
+
+
+
+	def evaluateOnTest(self, test_tweets, test_gold):
+		evaluator = evaluation.Evaluator()
+		predicted_bitvectors = self.combined_classify_tweets(test_tweets)
+		# converter.printLabels(predicted_bitvector)
+		# print test_set
+		gold_bitvectors = test_gold
+
+		# # All the incorrect/correct guesses statements
+		# evaluator.show_errors(test_tweets, predicted_bitvectors, gold_bitvectors)
+		# evaluator.show_correct(test_tweets, predicted_bitvectors, gold_bitvectors)
+
+		rmse = evaluator.rmse(predicted_bitvectors, gold_bitvectors)
+		print 'rmse:', rmse
+		rmse_by_class = evaluator.rmse_by_labelclass(predicted_bitvectors, gold_bitvectors)
+		print 'rmse_by_class', rmse_by_class
+
+		absolute_accuracy = evaluator.absolute_accuracy(predicted_bitvectors, gold_bitvectors)
+		print 'absolute_accuracy', absolute_accuracy
+
+		absolute_accuracy_by_class = evaluator.absolute_accuracy_by_labelclass(predicted_bitvectors, gold_bitvectors)
+		print 'absolute_accuracy_by_class', absolute_accuracy_by_class
+
+		return rmse, rmse_by_class, absolute_accuracy, absolute_accuracy_by_class
+
+
+	def getClassifiers(self):
 		classifiers = []
 		for label_index in range(self.totalNumLabels):
-			start_time = time.time()
-			featuresAndLabels = [(self.featurized_tweets[i], self.gold_bitvectors[i][label_index]) 
-								for i in range(self.numDataPoints)]
-			# elapsed_time = time.time() - start_time
-			# print 'finished constructing new features and labels for label_index %i and it took %f seconds ' %(label_index, elapsed_time)
-			train_set = featuresAndLabels
-			classifier = nltk.NaiveBayesClassifier.train(train_set)
+			x = self.featurized_training_tweets
+			y = [gold_vec[label_index] for gold_vec in self.training_gold]
+			classifier = MultinomialNB().fit(x, y)
 			classifiers.append(classifier)
-			elapsed_time = time.time() - start_time
-			print 'finished training classifier for label_index %i and it took %f seconds' %(label_index, elapsed_time)
 		print 'returning %i classifiers' %(len(classifiers))
 		return classifiers
 
-	def getTrainedClassifiersByLabelType(self):
-		classifiers = {'sentiment':None, 'time':None, 'event':None}
-		# Get Sentiment classifier
+	# def getTrainedClassifiersByLabelType(self):
+	# 	classifiers = {'sentiment':None, 'time':None, 'event':None}
+	# 	# Get Sentiment classifier
 
-		# sentiment
-		start_time = time.time()
-		sentimentFeaturesAndLabels = [(self.featurized_tweets[i], tuple(self.gold_bitvectors[i][0:5])) 
-								for i in range(self.numDataPoints)]
-		classifier = nltk.NaiveBayesClassifier.train(sentimentFeaturesAndLabels)
-		classifiers['sentiment'] = classifier
-		elapsed_time = time.time() - start_time
-		print 'finished training classifier for sentiment and it took %f seconds' %(elapsed_time)
+	# 	# sentiment
+	# 	start_time = time.time()
+	# 	sentimentFeaturesAndLabels = [(self.featurized_training_tweets[i], tuple(self.gold_bitvectors[i][0:5])) 
+	# 							for i in range(self.numDataPoints)]
+	# 	classifier = nltk.NaiveBayesClassifier.train(sentimentFeaturesAndLabels)
+	# 	classifiers['sentiment'] = classifier
+	# 	elapsed_time = time.time() - start_time
+	# 	print 'finished training classifier for sentiment and it took %f seconds' %(elapsed_time)
 
-		# time 
-		start_time = time.time()
-		timeFeaturesAndLabels = [(self.featurized_tweets[i], tuple(self.gold_bitvectors[i][5:9])) 
-								for i in range(self.numDataPoints)]
-		classifier = nltk.NaiveBayesClassifier.train(timeFeaturesAndLabels)
-		elapsed_time = time.time() - start_time
-		classifiers['time'] = classifier
-		print 'finished training classifier for time and it took %f seconds' %(elapsed_time)
+	# 	# time 
+	# 	start_time = time.time()
+	# 	timeFeaturesAndLabels = [(self.featurized_training_tweets[i], tuple(self.gold_bitvectors[i][5:9])) 
+	# 							for i in range(self.numDataPoints)]
+	# 	classifier = nltk.NaiveBayesClassifier.train(timeFeaturesAndLabels)
+	# 	elapsed_time = time.time() - start_time
+	# 	classifiers['time'] = classifier
+	# 	print 'finished training classifier for time and it took %f seconds' %(elapsed_time)
 
-		#event 
-		classifiers['event'] = []
-		for label_index in self.event_label_indices:
-			start_time = time.time()
-			featuresAndLabels = [(self.featurized_tweets[i], self.gold_bitvectors[i][label_index]) 
-								for i in range(self.numDataPoints)]
-			# elapsed_time = time.time() - start_time
-			# print 'finished constructing new features and labels for label_index %i and it took %f seconds ' %(label_index, elapsed_time)
-			train_set = featuresAndLabels
-			classifier = nltk.NaiveBayesClassifier.train(train_set)
-			classifiers['event'].append(classifier)
-			elapsed_time = time.time() - start_time
-			print 'finished training classifier for label_index %i and it took %f seconds' %(label_index, elapsed_time)
-		print 'returning %i classifiers' %(len(classifiers))
-		# print classifiers
-		return classifiers
+	# 	#event 
+	# 	classifiers['event'] = []
+	# 	for label_index in self.event_label_indices:
+	# 		start_time = time.time()
+	# 		featuresAndLabels = [(self.featurized_training_tweets[i], self.gold_bitvectors[i][label_index]) 
+	# 							for i in range(self.numDataPoints)]
+	# 		# elapsed_time = time.time() - start_time
+	# 		# print 'finished constructing new features and labels for label_index %i and it took %f seconds ' %(label_index, elapsed_time)
+	# 		train_set = featuresAndLabels
+	# 		classifier = nltk.NaiveBayesClassifier.train(train_set)
+	# 		classifiers['event'].append(classifier)
+	# 		elapsed_time = time.time() - start_time
+	# 		print 'finished training classifier for label_index %i and it took %f seconds' %(label_index, elapsed_time)
+	# 	print 'returning %i classifiers' %(len(classifiers))
+	# 	# print classifiers
+	# 	return classifiers
 
+	def combined_classify_tweets(self, tweets):
+		numTweets = len(tweets)
+		featurized_tweets = self.vectorizer.transform(tweets)
+		predicted_labels_by_label = [self.classifiers[i].predict(featurized_tweets) for i in range(self.totalNumLabels)]
 
-	def tweet_features(self, tweet):
-	    tweet_words = set()
-	    tweet_bigrams = set()
-	    prevWord = '<START>'
-	    for word in tweet.split():
-	    	word = word.lower().translate(string.maketrans("",""), string.punctuation)
-	    	tweet_words.add(word)
-	    	bigram = (prevWord, word)
-	    	tweet_bigrams.add(bigram)
-	    	prevWord = word
-
-	    features = {}
-	    for word in self.word_features:
-	        features['unigram(%s)' % word] = (word in tweet_words)
-	    for bigram in self.bigram_features:
-	        features['bigram(%s)' % str(bigram)] = (bigram in tweet_bigrams)
-	    return features
-
-	def combined_classify(self, tweet):
-		featurized_tweet = self.tweet_features(tweet)
-		if self.eachlabel == True:
-			return self.combined_classify_each_labeltype(featurized_tweet)
-		else:
-			return self.combined_classify_with24(featurized_tweet)
-
-	def combined_classify_with24(self, featurized_tweet):
-		return [self.classifiers[i].classify(featurized_tweet) for i in range(self.totalNumLabels)]
-
-	def combined_classify_each_labeltype(self, featurized_tweet):
-		prediction = list(self.classifiers['sentiment'].classify(featurized_tweet)) + \
-				list(self.classifiers['time'].classify(featurized_tweet)) + \
-				[classifier.classify(featurized_tweet) for classifier in self.classifiers['event']]
-		return prediction
-
-	# # doesn't work for new classification
-	# def combined_accuracy(self, test_set):
-	# 	test_set_each_label = []
-	# 	for i in range(self.totalNumLabels):
-	# 		label_test_set = [(test_example[0], test_example[1][i]) for test_example in test_set]
-	# 		test_set_each_label.append(label_test_set)
-	# 	return [nltk.classify.accuracy(self.classifiers[i], test_set_each_label[i]) for i in range(self.totalNumLabels)]
-
-	def combined_show_most_informative_features(self, num_features):
-		if self.eachlabel == True:
-			self.combined_show_most_informative_features_each_labeltype(num_features)
-		else:
-			self.combined_show_most_informative_features_with24(num_features)
-
-	def combined_show_most_informative_features_with24(self, num_features):
-		for i in range(self.totalNumLabels):
-			print 'for index ', i
-			self.classifiers[i].show_most_informative_features(num_features)
-
-	def combined_show_most_informative_features_each_labeltype(self, num_features):
-		print 'for sentiment:'
-		self.classifiers['sentiment'].show_most_informative_features(num_features)
-
-		print 'for time'
-		self.classifiers['time'].show_most_informative_features(num_features)
-
-		for event_classifier_index in range(len(self.classifiers['event'])):
-			print 'for event k', event_classifier_index+1
-			classifier = self.classifiers['event'][event_classifier_index]
-			classifier.show_most_informative_features(num_features)
-
-
-
-
-
+		predicted_labels_by_tweet = []
+		for tweet_idx in range(numTweets):
+			predicted_label = [predicted_labels_by_label[label_idx][tweet_idx] \
+							 for label_idx in range(self.totalNumLabels)]
+			predicted_labels_by_tweet.append(predicted_label)
+		return predicted_labels_by_tweet
 
 converter = vectorToLabel.Converter()
-nbc = combinedNBClassifier(training_filename='data/train.csv', eachlabel=True)
-evaluator = evaluation.Evaluator()
+nbc = combinedNBClassifier(data_filename='data/train.csv', numFolds=5)
 
-def predictUsingNBC(nbc, test_filename):
-	loader = dataloader.DataLoader(test_filename)
-
-	print '******** Predicting now! ********'
-	predicted_bitvectors = []
-	test_tweets = loader.corpus
-	for tweet in test_tweets:
-		print tweet
-		predicted_bitvector = nbc.combined_classify(tweet)
-		converter.printLabels(predicted_bitvector)
-		predicted_bitvectors.append(predicted_bitvector)
-	gold_bitvectors = loader.extractFullLabelBitVectors(1.0/3)
-	test_set = [(nbc.tweet_features(loader.corpus[i]), gold_bitvectors[i]) for i in range(loader.numDataPoints)]
-	# print test_set
-	
-	nbc.combined_show_most_informative_features(5)
-
-	evaluator.show_errors(test_tweets, predicted_bitvectors, gold_bitvectors)
-	# evaluator.show_correct(test_tweets, predicted_bitvectors, gold_bitvectors)
-
-	rmse = evaluator.rmse(predicted_bitvectors, gold_bitvectors)
-	print 'rmse:', rmse
-
-	absolute_accuracy = evaluator.absolute_accuracy(predicted_bitvectors, gold_bitvectors)
-	print 'absolute_accuracy', absolute_accuracy
-
-
-
-predictUsingNBC(nbc, 'data/test_100.csv')
+# def predictUsingNBC(nbc, test_filename):
+# 	loader = dataloader.DataLoader(test_filename)
+# 	print '******** Predicting now! ********'
+# 	test_tweets = loader.corpus
+# 	test_gold = loader.extractFullLabelBitVectors(event_label_threshold)
+# 	nbc.evaluateOnTest(test_tweets, test_gold)
+# predictUsingNBC(nbc, 'data/test_100.csv')
 
 
