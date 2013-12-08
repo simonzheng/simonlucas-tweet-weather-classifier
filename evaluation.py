@@ -1,5 +1,6 @@
 import numpy
 import math, random
+import vectorToLabel
 
 # Sample confidence vectors 
 # predicted_confidence_vector_a = 	[0,	0,	0.6,	0,	0, .4,	0,	1,	0,	0,	0,	0,	0,	0, 0,	0,	0,	0,	0,	0,	1,	0,	0,	0]
@@ -99,6 +100,53 @@ class Evaluator:
 		total_mean_squared_error = total_squared_error / (numPredictions * numLabels)
 		root_mean_squared_error = math.sqrt(total_mean_squared_error)
 		return root_mean_squared_error
+
+	def absolute_accuracy(self, predictions_list, gold_list):
+		correct_vector = [tuple(predictions_list[i]) == tuple(gold_list[i]) for i in range(len(predictions_list))]
+		return float(correct_vector.count(True)) / len(correct_vector)
+
+	def show_errors(self, tweets, predictions_list, gold_list):
+		print '\n~~~~~~~~~~~~~~~~~\nShowing Incorrect Tweets\n~~~~~~~~~~~~~~~~~'
+		converter = vectorToLabel.Converter()
+		correct_vector = [tuple(predictions_list[i]) == tuple(gold_list[i]) for i in range(len(predictions_list))]
+		for i in range(len(correct_vector)):
+			if correct_vector[i] == False:
+				print '****************************************************'
+				print 'for tweet ==', tweets[i]
+				print 'gold_list[%i] was ' %(i), gold_list[i]
+				converter.printLabels(gold_list[i])
+
+				print 'predictions_list[%i] was ' %(i), predictions_list[i]
+				converter.printLabels(predictions_list[i])
+
+	def show_correct(self, tweets, predictions_list, gold_list):
+		print '\n~~~~~~~~~~~~~~~~~\nShowing CORRECT Tweets\n~~~~~~~~~~~~~~~~~'
+		converter = vectorToLabel.Converter()
+		correct_vector = [tuple(predictions_list[i]) == tuple(gold_list[i]) for i in range(len(predictions_list))]
+		for i in range(len(correct_vector)):
+			if correct_vector[i] == True:
+				print '****************************************************'
+				print 'for tweet ==', tweets[i]
+				print 'gold_list[%i] was ' %(i), gold_list[i]
+				converter.printLabels(gold_list[i])
+
+				print 'predictions_list[%i] was ' %(i), predictions_list[i]
+				converter.printLabels(predictions_list[i])
+
+
+
+
+
+
+
+
+
+
+
+
+##### Scraps ######
+
+
 
 	# Note: can copy or use scikit's: http://scikit-learn.org/stable/modules/cross_validation.html
 

@@ -1,5 +1,6 @@
 import csv
 import collections
+import string
 from sklearn.feature_extraction.text import CountVectorizer
 # DataLoader loads a dictionary representing the raw csv data 
 class DataLoader:
@@ -19,6 +20,9 @@ class DataLoader:
 		self.corpus = [entry['tweet'] for entry in self.raw_test_data]
 		self.numDataPoints = len(self.raw_test_data)
 		self.totalNumLabels = len(self.labelnames['sentiment']) + len(self.labelnames['time']) + len(self.labelnames['event'])
+		self.event_label_indices = range(10,24)
+
+		self.all_words, self.bigram_words = None, None
  
 	# returns the raw data in dictionary form where we can access the tweet with raw_test_data[<entryindex>]['tweet]']
 	def loadTrainData(self, filename):
@@ -228,23 +232,32 @@ class DataLoader:
 		timebitvector = self.getBitVector(confidences['time'][0], 0)
 		return {'sentiment':len(sentimentbitvector), 'event':len(eventbitvector), 'time':len(timebitvector)}
 
-	# Returns all unigram words
+	# Returns all unigram words after lower-casing and removing punctuations
 	def getAllWords(self):
+		if self.all_words != None: return self.all_words
+
 		words = []
 		for tweet in self.corpus:
-			words += [word.lower() for word in tweet.split()]
+			words += [word.lower().translate(string.maketrans("",""), string.punctuation) for word in tweet.split()]
+
+		# Save for next time
+		if self.all_words == None: self.all_words = words
 		return words
 
 	# Returns all unigram words
 	def getAllBigramWords(self):
+		if self.bigram_words != None: return self.bigram_words
+
 		bigram_words = []
 		for tweet in self.corpus:
 			prevWord = '<START>'
 			words = tweet.split()
 			for word in words:
-				word = word.lower()
+				word = word.lower().translate(string.maketrans("",""), string.punctuation)
 				bigram_words.append((prevWord, word))
 				prevWord = word
+
+		if self.bigram_words == None: self.bigram_words = bigram_words
 		return bigram_words
 
 	def extractFullLabelBitVectors(self, event_conf_threshold):
