@@ -1,0 +1,112 @@
+CSP Correct, Combined Incorrect: 179
+Combined correct, CSP incorrect: 133 
+
+tweet:
+I dont understand how its almost summer time yet its 60 degrees in Georgia...#wtf
+true value
+{'event': ['cold'], 'sentiment': ['Negative'], 'time': ['current (same day) weather']}
+csp prediction
+{'event': ['cold'], 'sentiment': ['Negative'], 'time': ['current (same day) weather']}
+combined nb prediction
+{'event': ['cold', 'hot'], 'sentiment': ['Negative'], 'time': ['current (same day) weather']}
+
+tweet:s
+This is why I hate Michigan. 3 days ago it was 40 degrees cold as hell no lie... today it wants to be 80 degrees hot as fuck!!!
+true value
+{'event': ['cold', 'hot'], 'sentiment': ['Negative'], 'time': ['current (same day) weather']}
+csp prediction
+{'event': ['hot'], 'sentiment': ['Negative'], 'time': ['current (same day) weather']}
+combined nb prediction
+{'event': ['cold', 'hot'], 'sentiment': ['Negative'], 'time': ['current (same day) weather']}
+
+
+Combined Correct, Structured Incorrect: 1473
+Structured Correct, Combined Incorrect: 5806
+
+ex. Structured correct, combined inccorect
+tweet:
+will be #extremely pissed off if the storm team takes over my TV while the final episode of American idol is on
+correct:
+STRUCTUREDNB
+true value
+{'event': ['storms'], 'sentiment': ['Tweet not related to weather condition'], 'time': ['current (same day) weather']}
+structured nb prediction
+{'event': ['storms'], 'sentiment': ['Tweet not related to weather condition'], 'time': ['current (same day) weather']}
+combined nb prediction
+{'event': ['storms'], 'sentiment': [], 'time': ['current (same day) weather']}
+
+- combined can give no value for sentiment category while structured
+will give a category because it is trained on human labeling 
+
+------------------------------------------
+tweet:
+Some thunderstorms tonight. Is the weather impacting your weekend plans? {link}
+correct:
+COMBINEDNB
+true value
+{'event': ['storms'], 'sentiment': ['Neutral / author is just sharing information'], 'time': ['current (same day) weather']}
+structured nb prediction
+{'event': ["I can't tell"], 'sentiment': ['Neutral / author is just sharing information'], 'time': ['current (same day) weather']}
+combined nb prediction
+{'event': ['storms'], 'sentiment': ['Neutral / author is just sharing information'], 'time': ['current (same day) weather']}
+
+-structured gives "I can't tell" as a result often because this is the category
+that is usually by itself and therefore it's probability distribution isn't affected by 
+joint categories" 
+---------------------------------------------------
+tweet:
+Partly Sunny & Pleasant Friday, Showers Return this Weekend {link}
+correct:
+COMBINEDNB
+true value
+{'event': ['rain', 'sun'], 'sentiment': ['Neutral / author is just sharing information'], 'time': ['future (forecast)']}
+structured nb prediction
+{'event': ['sun'], 'sentiment': ['Neutral / author is just sharing information'], 'time': ['future (forecast)']}
+combined nb prediction
+{'event': ['rain', 'sun'], 'sentiment': ['Neutral / author is just sharing information'], 'time': ['future (forecast)']}
+
+
+
+
+- structurednb gives single category results over multiple category most of the time since it observes fewer multiple category examples
+---------------------------------------------------------
+tweet:
+RT @mention: RT if you are in Memphis and scared of the weather!!!lol
+correct:
+NEITHER
+true value
+{'event': ["I can't tell"], 'sentiment': ['Neutral / author is just sharing information'], 'time': ['current (same day) weather']}
+structured nb prediction
+{'event': ["I can't tell"], 'sentiment': ['Tweet not related to weather condition'], 'time': ['current (same day) weather']}
+combined nb prediction
+{'event': [], 'sentiment': [], 'time': ['current (same day) weather']}
+
+- structurednb is better for vague tweets because "i can't tell" already takes
+up a large part of the probability distribution while for combinednb the categories
+are mutually independent so if all probabilities are low, none of them will be chosen. 
+
+
+
+Structured Naive Bayes
+
+
+A main source of error for structured naive bayes was that it almost always chose to give single category results. This resulted from the way that more of the examples that structured naive bayes was trained on were single category than multiple category. An example of this is the tweet 
+"Partly Sunny & Pleasant Friday, Showers Return this Weekend {link}"
+true event value: ['rain', 'sun']
+structured naive bayes prediction: ['sun']
+combined naive bayes prediction: ['rain', 'sun']
+Since ['sun'] and ['rain', 'sun'] are mutually exclusive, structured naive bayes chooses
+['sun'] because it is more likely based on the words in the tweet. 
+combined naive bayes eliminates this issue by treating the labels as independent. 
+
+Combined Naive Bayes 
+
+A main source of error for combined Naive Bayes is that it doesn't deal with ambiguous tweets in the same way that a human does. For example, 
+
+#childhoodmemories Leaving the Waterslide on Break to go get Chips with cheese and a Slush
+true event value: ["I can't tell"]
+structured nb prediction ["I can't tell"],
+combined nb prediction [] 
+
+
+In this case, the combined nb classifier does not predict any of the sentiment labels. Because they all have very low probability of occuring given the weather condition, therefore it outputs an empty array, while the true value is 'tweet unrelated'. Structured Naive Bayes avoids this issue because its distribution is already biased towards ''
