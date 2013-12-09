@@ -9,6 +9,7 @@ import evaluation
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 import numpy as np
+import pickle
 
 event_label_threshold = 1.0/3
 
@@ -49,7 +50,7 @@ class structuredNBClassifier:
 		else:
 			kf = KFold(self.loader.numDataPoints, n_folds=numFolds, indices=True)
 			all_rmse, all_rmse_by_class = [], []
-			all_abs_acc, all_abs_acc_by_class = [], []
+			all_abs_acc, all_abs_acc_by_class, all_predicted = [], [], []
 			for train_indices, test_indices in kf:
 				print 'performing kf tesing on ', test_indices
 				self.train_indices = train_indices
@@ -79,6 +80,7 @@ class structuredNBClassifier:
 				all_rmse_by_class.append(rmse_by_class)
 				all_abs_acc.append(absolute_accuracy)
 				all_abs_acc_by_class.append(absolute_accuracy_by_class)
+				all_predicted = all_predicted + fold_predicted
 
 			print 'overall rmse = ', np.mean(all_rmse)
 			print 'overall rmse by class = '
@@ -88,6 +90,8 @@ class structuredNBClassifier:
 			print 'overall absolute_accuracy_by_class = ' 
 			for label_type in self.label_types:
 				print '\t', label_type, np.mean([fold_rmse[label_type] for fold_rmse in all_abs_acc_by_class])
+			print 'pickling predicted vectors'
+			pickle.dump(all_predicted, open('structuredNBpredicted.pkl', "wb"))
 
 
 

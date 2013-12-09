@@ -9,6 +9,7 @@ import evaluation
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 import numpy as np
+import pickle
 
 event_label_threshold = 1.0/3
 
@@ -48,7 +49,7 @@ class combinedNBClassifier:
 		else:
 			kf = KFold(loader.numDataPoints, n_folds=numFolds, indices=True)
 			all_rmse, all_rmse_by_class = [], []
-			all_abs_acc, all_abs_acc_by_class = [], []
+			all_abs_acc, all_abs_acc_by_class, all_predicted = [], [], []
 			for train_indices, test_indices in kf:
 				print 'performing kf tesing on ', test_indices
 				start_time = time.time()
@@ -71,12 +72,13 @@ class combinedNBClassifier:
 				
 				# print 'finished getting classifiers after this many seconds:', time.time() - start_time
 				
-				rmse, rmse_by_class, absolute_accuracy, absolute_accuracy_by_class = self.evaluateOnTest(self.test_tweets, self.test_gold)
+				fold_predicted, rmse, rmse_by_class, absolute_accuracy, absolute_accuracy_by_class = self.evaluateOnTest(self.test_tweets, self.test_gold)
 				# print 'finished getting classifiers after this many seconds', time.time() - start_time
 				all_rmse.append(rmse)
 				all_rmse_by_class.append(rmse_by_class)
 				all_abs_acc.append(absolute_accuracy)
 				all_abs_acc_by_class.append(absolute_accuracy_by_class)
+				all_predicted = all_predicted + fold_predicted
 
 			print 'overall rmse = ', np.mean(all_rmse)
 			print 'overall rmse by class = '
@@ -86,6 +88,7 @@ class combinedNBClassifier:
 			print 'overall absolute_accuracy_by_class = ' 
 			for label_type in self.label_types:
 				print '\t', label_type, np.mean([fold_rmse[label_type] for fold_rmse in all_abs_acc_by_class])
+			pickle.dump(all_predicted, open('combinedNBpredicted.pkl', "wb"))
 
 
 
@@ -112,7 +115,7 @@ class combinedNBClassifier:
 		absolute_accuracy_by_class = evaluator.absolute_accuracy_by_labelclass(predicted_bitvectors, gold_bitvectors)
 		print 'absolute_accuracy_by_class', absolute_accuracy_by_class
 
-		return rmse, rmse_by_class, absolute_accuracy, absolute_accuracy_by_class
+		return predicted_bitvectors, rmse, rmse_by_class, absolute_accuracy, absolute_accuracy_by_class
 
 
 	def getClassifiers(self):
