@@ -18,12 +18,16 @@ class activityRecommender:
 		self.label_types = ['sentiment', 'time', 'event']
 		event_label_threshold = 1.0/3
 		self.gold_bitvectors = self.loader.extractFullLabelBitVectors(event_label_threshold)
-		candidate_corpus_path = 'data/train_tagged.csv'
+		# tagged_corpus_path = os.path.realpath('data/train_tagged.txt')
+		# tagged_corp_reader = nltk.corpus.reader.TaggedCorpusReader(os.path.dirname(tagged_corpus_path), os.path.basename(tagged_corpus_path), sep='_')
+		# self.tagged_tweets = tagged_corp_reader.tagged_sents()
+
+		candidate_corpus_path = os.path.realpath('data/train_tagged.csv')
+
+		# gs = nltk.corpus.reader.TaggedCorpusReader(os.path.dirname(gs_corpus_path), os.path.basename(gs_corpus_path), sep='_')
 		candidate = nltk.corpus.reader.TaggedCorpusReader(os.path.dirname(candidate_corpus_path), os.path.basename(candidate_corpus_path), sep='_')
-		self.tagged_tweets = candidate.tagged_paras()
-		print '***********************'
-		print self.tagged_tweets[0][0] # should return the first tweet tagged
-		print '***********************'
+
+		self.tagged_tweets = candidate.tagged_sents()
 
 		# # Test Code to Print if we're extracting correctly
 		# converter = vectorToLabel.Converter()
@@ -63,17 +67,17 @@ class activityRecommender:
 
 	def getVerbs(self, tweet_idx):
 		tagged_tweet = self.tagged_tweets[tweet_idx]
-		print '----------------------------------------------------------------------'
-		print '--> The tagged tweet is: ', tagged_tweet
+		# print '----------------------------------------------------------------------'
+		# print '--> The tagged tweet is: ', tagged_tweet
 		verbFound = False
 		verbs = []
 		for (word, tag) in tagged_tweet:
 			if tag != None and tag.startswith('V'):
-				print '\t\tVerb: ', word
+				# print '\t\tVerb: ', word
 				verbs.append(word)
 				verbFound = True
 		if not verbFound:
-			print '\t\t *** No Verbs Found ***'
+			# print '\t\t *** No Verbs Found ***'
 			verbs = None
 		return verbs
 
@@ -114,31 +118,37 @@ def predictTweets(tweetsToBeTagged):
 import vectorToLabel
 tweetsToBeTagged = load_tweets()
 
+filename='data/train.csv'
 
 # import combinedNaiveBayes
 # cnbc = combinedNaiveBayes.combinedNBClassifier(data_filename='data/train.csv', numFolds=0)
 # predictions_list = cnbc.combined_classify_tweets(tweetsToBeTagged)
 import structuredNaiveBayes
-snbc = structuredNaiveBayes.structuredNBClassifier(data_filename='data/test_1000.csv', numFolds=0)
+snbc = structuredNaiveBayes.structuredNBClassifier(data_filename=filename, numFolds=0)
 print 'loaded classifier. now predicting'
 predictions_list = snbc.combined_classify_tweets(tweetsToBeTagged)
 print 'predicted!'
 
+# pickle.write(name of data structure, open(filename, 'wb'))
+# prediction_list = pickle.load(open())
+
 converter = vectorToLabel.Converter()
-recommender = activityRecommender('data/train.csv')
+recommender = activityRecommender(filename)
 print 'loaded recommender'
 
 for i in range(len(tweetsToBeTagged)):
 	prediction_vec = predictions_list[i]
+	print '\n*************************************'
 	print 'For tweet: %s' %(tweetsToBeTagged[i])
 	print '\tPredicted: %s' %(prediction_vec)
 	labels = converter.convertToLabels(prediction_vec)
 	for labeltype in converter.labeltypes:
 		print '\tPredicted %s labels: %s' %(labeltype, labels[labeltype])
 	similarTweets = recommender.getSimilarTweets(prediction_vec)
-	
+
 	print '\nLooking at Similar Tweets:'
 	for similarTweet in similarTweets:
-		print '\tSimilar Tweet:', similarTweet['tweet']
-		print '\tVerbs:', similarTweet['verbs']
+		# print '\tSimilar Tweet:', similarTweet['tweet']
+		# print '\tVerbs:', similarTweet['verbs']
+		print '\tPerhaps you should try any of these verbs %s from such as in this similar positive tweets: %s' %(str(similarTweet['verbs']), similarTweet['tweet'])
 

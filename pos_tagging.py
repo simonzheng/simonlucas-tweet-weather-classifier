@@ -18,6 +18,7 @@ candidate_corpus_path = os.path.realpath(sys.argv[1])
 candidate = nltk.corpus.reader.TaggedCorpusReader(os.path.dirname(candidate_corpus_path), os.path.basename(candidate_corpus_path), sep='_')
 
 candidate_tagged_sents = candidate.tagged_sents()
+print candidate_tagged_sents[0]
 
 for sentence in candidate_tagged_sents:
 	print '----------------------------------------------------------------------'
