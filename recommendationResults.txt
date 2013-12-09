@@ -1,0 +1,128 @@
+*************************************
+For tweet: Hate the feeling of being home alone, especially until Sunday. I guess I got my #bodypillow and these thunderstorms right? #goodnightworld
+
+	Predicted: [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+	Predicted sentiment labels: ['Negative']
+	Predicted time labels: ['current (same day) weather']
+	Predicted event labels: ['storms']
+
+Looking at Similar Tweets:
+	Perhaps you should try to ['are', 'adore', 'Need', 'be', 'chasing'] (source: And these storms are why i adore spring. Need to be storm chasing with @mention.)
+	Perhaps you should try to ['love', 'be', 'giving'] (source: RT @mention: I love summer storms! Could be a very successful weather girl with this #Fibro #pain giving me heas up! #can-predict ...)
+	Perhaps you should try to ["I'm", "I'm", 'is', 'goin', 'going'] (source: I'm glad I'm in the house...brandon is goin to bed while this storm going on)
+
+*************************************
+For tweet: Good morning gorgeous tweets! Looks like another beautiful sunny day!! X
+
+	Predicted: [0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+	Predicted sentiment labels: ['Positive']
+	Predicted time labels: ['current (same day) weather']
+	Predicted event labels: ['sun']
+
+Looking at Similar Tweets:
+	Perhaps you should try to ['is'] (source: TOP CHOICE --&gt; {link} - Today is awesome!!! Free comic books, lunch with my mama, sunshine & DJ'n ... (via @mention))
+	Perhaps you should try to ['missed', '(:', 'see'] (source: oh sunshine how much ive missed you (: its great to see you again !)
+	Perhaps you should try to ['want', 'move', 'take', 'visit'] (source: I just want to move to the sunny hills of San Francisco, take trips to Venice Beach, and visit my family in the Hollywood Hills. #dreams)
+
+*************************************
+For tweet: Rt @mention: Severe thunderstorm warning for Polk County until 7:30. Details at {link}
+
+	Predicted: [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+	Predicted sentiment labels: ['Neutral / author is just sharing information']
+	Predicted time labels: ['current (same day) weather']
+	Predicted event labels: ['storms']
+
+Looking at Similar Tweets:
+	Perhaps you should try to ['are', 'adore', 'Need', 'be', 'chasing'] (source: And these storms are why i adore spring. Need to be storm chasing with @mention.)
+	Perhaps you should try to ['love', 'be', 'giving'] (source: RT @mention: I love summer storms! Could be a very successful weather girl with this #Fibro #pain giving me heas up! #can-predict ...)
+	Perhaps you should try to ["I'm", "I'm", 'is', 'goin', 'going'] (source: I'm glad I'm in the house...brandon is goin to bed while this storm going on)
+
+*************************************
+For tweet: If this stupid weather jacks up my tv so I can't watch #glee tonight, I'mma be #PISSED . You don't mess wit muh glee.
+
+	Predicted: [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+	Predicted sentiment labels: ['Negative']
+	Predicted time labels: ['current (same day) weather']
+	Predicted event labels: ["I can't tell"]
+
+Looking at Similar Tweets:
+	Perhaps you should try to ['Preach', 'live'] (source: Preach lol! :) RT @mention: #alliwantis this type of weather all the time.. I live for beautiful days like this! #minneapolis)
+	Perhaps you should try to ['goin'] (source: @mention damnhomie. Perfect weather over here. why u goin to florida)
+	Perhaps you should try to ['had', 'assembled', 'Stop', 'is', 'is'] (source: We had crowds assembled before the 9am start to the sale. Stop on by while the weather is lovely and the selection is good.)
+
+*************************************
+For tweet: #WEATHER:  8:53 pm : 70.0F. Feels F. 29.84% Humidity. 3.5MPH East Wind.
+
+	Predicted: [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+	Predicted sentiment labels: ['Neutral / author is just sharing information']
+	Predicted time labels: ['current (same day) weather']
+	Predicted event labels: ['humid', 'wind']
+
+Looking at Similar Tweets:
+	Perhaps you should try to ['Turned'] (source: Turned out a nice day but humid and windy in the harbor {link})
+	Perhaps you should try to ['Enjoy', 'Taking'] (source: @mention 84 right now, breezy, and humidity at 60%. Not too bad for this time of the year. Enjoy your vacation. Taking in an A's game?)
+	Perhaps you should try to ['was', 'nice...', 'was', 'have', 'wear', 'sleep'] (source: @mention today's weather was fairly nice... it was windy but still a little sticky... i have to wear pants to sleep now.. LOL)
+
+*************************************
+For tweet: Current Conditions: Fair, 78 FForecast: Sat - Sunny. High: 84 Low: 64 Sun - Sunny. High: 90 Low: 67Full Forecast at Yahoo! Weather (p...
+
+	Predicted: [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+	Predicted sentiment labels: ['Neutral / author is just sharing information']
+	Predicted time labels: ['current (same day) weather']
+	Predicted event labels: ['sun']
+
+Looking at Similar Tweets:
+	Perhaps you should try to ['is'] (source: TOP CHOICE --&gt; {link} - Today is awesome!!! Free comic books, lunch with my mama, sunshine & DJ'n ... (via @mention))
+	Perhaps you should try to ['missed', '(:', 'see'] (source: oh sunshine how much ive missed you (: its great to see you again !)
+	Perhaps you should try to ['want', 'move', 'take', 'visit'] (source: I just want to move to the sunny hills of San Francisco, take trips to Venice Beach, and visit my family in the Hollywood Hills. #dreams)
+
+*************************************
+For tweet: WE DOIN SOMETHING DIFFERENT... SINCE THE WEATHER IS NICE AND ITS ALMOST THAT SEASON WE DOIN REGGAE TUESDAY.. ON... {link}
+
+	Predicted: [0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+	Predicted sentiment labels: ['Positive']
+	Predicted time labels: ['current (same day) weather']
+	Predicted event labels: ["I can't tell"]
+
+Looking at Similar Tweets:
+	Perhaps you should try to ['Preach', 'live'] (source: Preach lol! :) RT @mention: #alliwantis this type of weather all the time.. I live for beautiful days like this! #minneapolis)
+	Perhaps you should try to ['goin'] (source: @mention damnhomie. Perfect weather over here. why u goin to florida)
+	Perhaps you should try to ['had', 'assembled', 'Stop', 'is', 'is'] (source: We had crowds assembled before the 9am start to the sale. Stop on by while the weather is lovely and the selection is good.)
+
+*************************************
+For tweet: OMG #WeatherForecast for tomm 80 degrees & Sunny &lt;=== #NeedThat #Philly #iMustSeeItToBelieveIt yo
+
+	Predicted: [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+	Predicted sentiment labels: ['Positive']
+	Predicted time labels: ['future (forecast)']
+	Predicted event labels: ['hot', 'sun']
+
+Looking at Similar Tweets:
+	Perhaps you should try to ['Supposed', 'be'] (source: Supposed to be sunny and in 80's all week!!!!)
+	Perhaps you should try to ["it's", 'have', 'work'] (source: 2:45pm: it's sunny and warm out. I have no desire to work anymore today.)
+	Perhaps you should try to ['declared', 'Leave', 'seek'] (source: RT @mention: Severe Weather Alert: SUN EMERGENCY declared for Twin Cities. Leave your home or office IMMEDIATELY and seek shelter in the out ...)
+
+*************************************
+For tweet: @mention Oh no! We had cold weather early in the week, but now it's getting warmer! Hoping the rain holds out to Saturday!
+
+	Predicted: [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+	Predicted sentiment labels: ['Negative']
+	Predicted time labels: ['current (same day) weather']
+	Predicted event labels: ["I can't tell"]
+
+Looking at Similar Tweets:
+	Perhaps you should try to ['Preach', 'live'] (source: Preach lol! :) RT @mention: #alliwantis this type of weather all the time.. I live for beautiful days like this! #minneapolis)
+	Perhaps you should try to ['goin'] (source: @mention damnhomie. Perfect weather over here. why u goin to florida)
+	Perhaps you should try to ['had', 'assembled', 'Stop', 'is', 'is'] (source: We had crowds assembled before the 9am start to the sale. Stop on by while the weather is lovely and the selection is good.)
+
+*************************************
+For tweet: North Cascades Hwy to reopen Wed.: quite late after a long, deep winter. Only had to clear snow 75 ft deep {link}
+	Predicted: [0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
+	Predicted sentiment labels: ['Tweet not related to weather condition']
+	Predicted time labels: ["I can't tell"]
+	Predicted event labels: ['snow']
+
+Looking at Similar Tweets:
+	Perhaps you should try to ['is', 'wonderful!'] (source: @mention Snow is wonderful!)
+	Perhaps you should try to ['is', 'has'] (source: Contest Update:  The good news is that 95% of the mountain's snow coverage has melted...the bad news (at least for... {link})
+	Perhaps you should try to ['were', 'ran'] (source: #RandomThought when me& my bestfriend @mention were idiots& ran in the snow with no shoes on xD)

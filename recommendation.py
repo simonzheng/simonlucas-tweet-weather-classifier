@@ -28,6 +28,13 @@ class activityRecommender:
 		candidate = nltk.corpus.reader.TaggedCorpusReader(os.path.dirname(candidate_corpus_path), os.path.basename(candidate_corpus_path), sep='_')
 
 		self.tagged_tweets = candidate.tagged_sents()
+		corpusLen = len(self.loader.corpus)
+		print 'self.loader.corpus len = ', corpusLen
+		# print self.loader.corpus[10:]
+
+		taggedCorpusLen = len(self.tagged_tweets)
+		print 'self.tagged_tweets len=', taggedCorpusLen
+		# print self.tagged_tweets[10:]
 
 		# # Test Code to Print if we're extracting correctly
 		# converter = vectorToLabel.Converter()
@@ -41,16 +48,18 @@ class activityRecommender:
 		similarTweets = []
 		numSimilarTweetsToFind = 3
 
-		shuffledCorpus = random.shuffle(self.loader.corpus)
-
 		for tweet_idx in range(len(self.loader.corpus)):
 			tweet = self.loader.corpus[tweet_idx]
 			corpusTweetLabels = self.gold_bitvectors[tweet_idx]
 			if self.checkCriteria(vectorToMatch, corpusTweetLabels):
+
 				verbs = self.getVerbs(tweet_idx)
+				if len(verbs) == 0: continue
 				similarTweets.append({'tweet': tweet,
 										'labels': corpusTweetLabels,
 										'verbs': verbs})
+				numSimilarTweetsToFind -= 1
+				if numSimilarTweetsToFind == 0: break
 		return similarTweets
 
 	def checkCriteria(self, vectorToMatch, corpusTweetLabelVector):
@@ -67,18 +76,14 @@ class activityRecommender:
 
 	def getVerbs(self, tweet_idx):
 		tagged_tweet = self.tagged_tweets[tweet_idx]
-		# print '----------------------------------------------------------------------'
-		# print '--> The tagged tweet is: ', tagged_tweet
 		verbFound = False
 		verbs = []
 		for (word, tag) in tagged_tweet:
 			if tag != None and tag.startswith('V'):
-				# print '\t\tVerb: ', word
 				verbs.append(word)
 				verbFound = True
-		if not verbFound:
-			# print '\t\t *** No Verbs Found ***'
-			verbs = None
+		# if not verbFound:
+		# 	print '\t\t *** No Verbs Found ***'
 		return verbs
 
 
@@ -150,5 +155,5 @@ for i in range(len(tweetsToBeTagged)):
 	for similarTweet in similarTweets:
 		# print '\tSimilar Tweet:', similarTweet['tweet']
 		# print '\tVerbs:', similarTweet['verbs']
-		print '\tPerhaps you should try any of these verbs %s from such as in this similar positive tweets: %s' %(str(similarTweet['verbs']), similarTweet['tweet'])
+		print '\tPerhaps you should try to %s (source: %s)' %(str(similarTweet['verbs']), similarTweet['tweet'])
 
