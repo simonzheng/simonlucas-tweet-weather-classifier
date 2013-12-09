@@ -5,9 +5,35 @@ structured nb classifier
 python evaluatenbclassifier.py
 
 combined nb classifier
-python combined___
+python evaluatecombinedNaiveBayes.py
+
+csp classifier
+python evaluatecspclassifier
+
+stupid classifier
+python evaluatestupidclassifier
 
 
+*****************
+**** Our Code: ****
+*****************
+
+//data preprocessing 
+feature_extraction/dataloader.py
+
+//classifier code 
+combinedNaiveBayes.py
+compareClassifiers.py
+structuredNaiveBayes.py
+
+//reccomendation code 
+recommendation.py
+
+//bit vector unpacking tool
+vectorToLabel.py
+
+//binary potential learning 
+extractcooccurence.py
 
 
 *****************
@@ -25,3 +51,17 @@ python combined___
 * Saved Results *
 *****************
 Our results are in .txt files
+
+// Output of compareClassifiers.py for different pairs of classifiers 
+(gives side-by-side comparison for examples where at least one classifier failed)
+	combinednb_csp_comparison.txt		     
+	combinednb_structurednb_comparison.txt	     
+	combinednb_structurednb_event_comparison.txt
+ 
+//Average and Fold-wise Error reports for each classifier 
+	combinedResultsWith24Classifiers.txt	       
+ 	structuredNBResults.txt
+
+// reccomendation module results
+	recommendationResults.txt
+ 
