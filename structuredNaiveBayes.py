@@ -74,7 +74,7 @@ class structuredNBClassifier:
 				
 				# print 'finished getting classifiers after this many seconds:', time.time() - start_time
 				
-				rmse, rmse_by_class, absolute_accuracy, absolute_accuracy_by_class = self.evaluateOnTest(self.test_tweets, self.test_gold)
+				fold_predicted, rmse, rmse_by_class, absolute_accuracy, absolute_accuracy_by_class = self.evaluateOnTest(self.test_tweets, self.test_gold)
 				# print 'finished getting classifiers after this many seconds', time.time() - start_time
 				all_rmse.append(rmse)
 				all_rmse_by_class.append(rmse_by_class)
@@ -117,7 +117,7 @@ class structuredNBClassifier:
 		absolute_accuracy_by_class = evaluator.absolute_accuracy_by_labelclass(predicted_bitvectors, gold_bitvectors)
 		print 'absolute_accuracy_by_class', absolute_accuracy_by_class
 
-		return rmse, rmse_by_class, absolute_accuracy, absolute_accuracy_by_class
+		return predicted_bitvectors, rmse, rmse_by_class, absolute_accuracy, absolute_accuracy_by_class
 
 
 	def getClassifiers(self):

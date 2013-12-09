@@ -25,10 +25,15 @@ tweetcorpus = loader.corpus
 converter = vectorToLabel.Converter()
 
 predictions = {'csp:', pickle.load(open('csppredicted.pkl')) , 'structurednb':pickle.load(open('csppredicted.pkl')), pickle.load(open('csppredicted.pkl'))]
+goldvectors = loader.extractFullLabelBitVectors
 
 for exampleindex in range(numDataPoints):
-	if predictions['csp'][exampleindex] != predictions['structurednb']:
-		tweet = tweetcorpus[exampleindex]
+	#if predictions['csp'][exampleindex] != predictions['structurednb']:
+	tweet = tweetcorpus[exampleindex]
+	print 'tweet'
+	print tweet
+
+
 
 
 
