@@ -2,6 +2,7 @@ import os
 import sys
 from feature_extraction import dataloader
 import random
+import nltk
 
 class activityRecommender:
 	def __init__(self, data_filename):
@@ -17,6 +18,12 @@ class activityRecommender:
 		self.label_types = ['sentiment', 'time', 'event']
 		event_label_threshold = 1.0/3
 		self.gold_bitvectors = self.loader.extractFullLabelBitVectors(event_label_threshold)
+		candidate_corpus_path = 'data/train_tagged.csv'
+		candidate = nltk.corpus.reader.TaggedCorpusReader(os.path.dirname(candidate_corpus_path), os.path.basename(candidate_corpus_path), sep='_')
+		self.tagged_tweets = candidate.tagged_paras()
+		print '***********************'
+		print self.tagged_tweets[0][0] # should return the first tweet tagged
+		print '***********************'
 
 		# # Test Code to Print if we're extracting correctly
 		# converter = vectorToLabel.Converter()
@@ -36,12 +43,10 @@ class activityRecommender:
 			tweet = self.loader.corpus[tweet_idx]
 			corpusTweetLabels = self.gold_bitvectors[tweet_idx]
 			if self.checkCriteria(vectorToMatch, corpusTweetLabels):
-				verbs = self.getVerbs(tweet)
+				verbs = self.getVerbs(tweet_idx)
 				similarTweets.append({'tweet': tweet,
 										'labels': corpusTweetLabels,
 										'verbs': verbs})
-				numSimilarTweetsToFind -= 1
-				if numSimilarTweetsToFind == 0: break
 		return similarTweets
 
 	def checkCriteria(self, vectorToMatch, corpusTweetLabelVector):
@@ -56,21 +61,28 @@ class activityRecommender:
 				return False
 		return True
 
-	def getVerbs(self, tweet):
-		
-
-
-
-
-
-
+	def getVerbs(self, tweet_idx):
+		tagged_tweet = self.tagged_tweets[tweet_idx]
+		print '----------------------------------------------------------------------'
+		print '--> The tagged tweet is: ', tagged_tweet
+		verbFound = False
+		verbs = []
+		for (word, tag) in tagged_tweet:
+			if tag != None and tag.startswith('V'):
+				print '\t\tVerb: ', word
+				verbs.append(word)
+				verbFound = True
+		if not verbFound:
+			print '\t\t *** No Verbs Found ***'
+			verbs = None
+		return verbs
 
 
 if len(sys.argv) <= 1:
     print "Usage: recommendation.py tweetsToBeTagged_filename"
     sys.exit()
 
-def load_tweets():
+def load_tweets(filename=None):
 	tweetsToBeTagged_filename = sys.argv[1]
 	if len(tweetsToBeTagged_filename) <= 0:
 		print 'tweetsToBeTagged_filename must be at least one char!'
@@ -107,7 +119,7 @@ tweetsToBeTagged = load_tweets()
 # cnbc = combinedNaiveBayes.combinedNBClassifier(data_filename='data/train.csv', numFolds=0)
 # predictions_list = cnbc.combined_classify_tweets(tweetsToBeTagged)
 import structuredNaiveBayes
-snbc = structuredNaiveBayes.structuredNBClassifier(data_filename='data/train.csv', numFolds=0)
+snbc = structuredNaiveBayes.structuredNBClassifier(data_filename='data/test_1000.csv', numFolds=0)
 print 'loaded classifier. now predicting'
 predictions_list = snbc.combined_classify_tweets(tweetsToBeTagged)
 print 'predicted!'
@@ -126,5 +138,7 @@ for i in range(len(tweetsToBeTagged)):
 	similarTweets = recommender.getSimilarTweets(prediction_vec)
 	
 	print '\nLooking at Similar Tweets:'
-	for entry in similarTweets:
-		print '\tSimilar Tweet:', entry['tweet']
+	for similarTweet in similarTweets:
+		print '\tSimilar Tweet:', similarTweet['tweet']
+		print '\tVerbs:', similarTweet['verbs']
+
