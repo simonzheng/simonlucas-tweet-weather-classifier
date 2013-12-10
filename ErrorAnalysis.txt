@@ -1,3 +1,5 @@
+
+
 CSP Correct, Combined Incorrect: 179
 Combined correct, CSP incorrect: 133 
 
@@ -89,12 +91,13 @@ are mutually independent so if all probabilities are low, none of them will be c
 
 Structured Naive Bayes
 
-
 A main source of error for structured naive bayes was that it almost always chose to give single category results. This resulted from the way that more of the examples that structured naive bayes was trained on were single category than multiple category. An example of this is the tweet 
+
 "Partly Sunny & Pleasant Friday, Showers Return this Weekend {link}"
 true event value: ['rain', 'sun']
 structured naive bayes prediction: ['sun']
 combined naive bayes prediction: ['rain', 'sun']
+
 Since ['sun'] and ['rain', 'sun'] are mutually exclusive, structured naive bayes chooses
 ['sun'] because it is more likely based on the words in the tweet. 
 combined naive bayes eliminates this issue by treating the labels as independent. 
@@ -108,5 +111,26 @@ true event value: ["I can't tell"]
 structured nb prediction ["I can't tell"],
 combined nb prediction [] 
 
+In this case, the combined nb classifier does not predict any of the sentiment labels. Because they all have very low probability of occuring given the weather condition, therefore it outputs an empty array. The combined NB classifier doesn't automatically determine that this is an "I can't tell" event because there are no individual words that are highly predictive of an ambiguous tweet. Structured Naive Bayes avoids this issue because its distribution is already biased towards "I can't tell" since this is the only category that doesn't have to share it's probability distribution with combination labels.  
 
-In this case, the combined nb classifier does not predict any of the sentiment labels. Because they all have very low probability of occuring given the weather condition, therefore it outputs an empty array, while the true value is 'tweet unrelated'. Structured Naive Bayes avoids this issue because its distribution is already biased towards ''
+CSP Prediction 
+
+The binary constraints were effective in dealing with seemingly contradictory tweets. For example, 
+
+"I dont understand how its almost summer time yet its 60 degrees in Georgia"
+true event value: ['cold']
+csp prediction: ['cold']
+combined naive bayes prediction: ['cold', 'hot']
+
+In this case the binary constraint that 'cold' and 'hot' should not occur together helped the csp accurately classify this tweet and avoid the error that combined naive bayes made with it's bag of words approach that found words highly indicative of both 'cold' and 'hot' in the tweet. The tweet contains words indicative of both hot and cold, but the underlying meaning is that it should be hot, but it's actually cold. 
+
+On the other hand, the binary constraint approach backfired in examples like this one:
+
+This is why I hate Michigan. 3 days ago it was 40 degrees cold as hell no lie... today it wants to be 80 degrees hot as fuck!!!
+true event value: ['cold', 'hot']
+csp prediction: ['hot']
+combined nb prediction: ['cold', 'hot'] 
+
+In this case, the tweet was both 'cold' and 'hot' because the speaker was describing two separate weather events both in the past and future, but the binary constraints prevented the csp from recognizing it as such. 
+
+In both cases, it seems as if the csp and binary prediction approaches with their bag of words models, failed to understand in a meaningful way the underlying complexities of the sentences that they analyzed. 
